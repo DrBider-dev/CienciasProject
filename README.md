@@ -1,7 +1,7 @@
 <h1 align="center">🌿 Principal Page - CienciasProject</h1>
 
 <p align="center">
-  <img src="./Assets/Decoration2.png" width="200" alt="Project logo">
+  <img src="src/Assets/Logo.png" width="200" alt="Project logo">
 </p>
 
 <p align="center">
