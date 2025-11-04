@@ -1,0 +1,218 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+    color: white;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.container {
+    width: 100%;
+    max-width: 1200px;
+    background-color: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+header {
+    background-color: rgba(0, 0, 0, 0.2);
+    padding: 20px 30px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.back-button {
+    font-size: 24px;
+    cursor: pointer;
+    transition: color 0.3s;
+    display: flex;
+    align-items: center;
+}
+
+.back-button:hover {
+    color: #7cd4bb;
+}
+
+.title h1 {
+    font-size: 36px;
+    font-weight: 700;
+    text-align: center;
+    flex-grow: 1;
+}
+
+main {
+    padding: 30px;
+}
+
+.control-panel {
+    display: flex;
+    justify-content: space-between;
+    background-color: rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    border-radius: 15px;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.create-section, .operations-section, .file-section {
+    flex: 1;
+    min-width: 300px;
+}
+
+h2 {
+    font-size: 20px;
+    margin-bottom: 15px;
+    color: #7cd4bb;
+    font-weight: 600;
+}
+
+.input-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 15px;
+    align-items: center;
+}
+
+.input-group label {
+    white-space: nowrap;
+}
+
+.input-group input {
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 5px;
+    padding: 8px 12px;
+    color: white;
+    outline: none;
+    transition: all 0.3s;
+}
+
+.input-group input:focus {
+    border-color: #7cd4bb;
+    box-shadow: 0 0 5px rgba(124, 212, 187, 0.5);
+}
+
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s;
+    font-size: 16px;
+}
+
+.btn.primary {
+    background-color: #333;
+    color: white;
+}
+
+.btn.primary:hover {
+    background-color: #7cd4bb;
+    color: #333;
+}
+
+.btn.secondary {
+    background-color: #7cd4bb;
+    color: #333;
+}
+
+.btn.secondary:hover {
+    background-color: #5bbfa3;
+}
+
+.button-group {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.file-section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.visualization-panel {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 15px;
+    padding: 20px;
+    min-height: 300px;
+}
+
+.array-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    justify-content: center;
+    padding: 20px;
+}
+
+.cell {
+    width: 100px;
+    height: 70px;
+    border: 1px solid white;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px;
+    transition: all 0.3s;
+    background-color: transparent;
+}
+
+.cell.highlight-green {
+    background-color: #7cd4bb;
+    color: #333;
+}
+
+.cell.highlight-red {
+    background-color: #ff4d4d;
+    color: white;
+}
+
+.position {
+    font-size: 12px;
+    margin-top: 5px;
+}
+
+.value {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+    .control-panel {
+        flex-direction: column;
+    }
+    
+    .create-section, .operations-section, .file-section {
+        min-width: 100%;
+    }
+    
+    .file-section {
+        flex-direction: row;
+        justify-content: space-around;
+    }
+}

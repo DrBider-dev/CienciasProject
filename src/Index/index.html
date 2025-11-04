@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Principal - Busquedas</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <button class="closeX" id="closeX">X</button>
+
+  <div class="app">
+    <div class="left">
+      <!-- Card 1 -->
+      <div class="card" id="card-1">
+        <h2 class="title">Busquedas Internas</h2>
+        <div class="subtitle">Elige una búsqueda para ver más detalles o abrir su ventana</div>
+        <div class="options">
+          <div class="option" data-id="linealSearchLabel"><h3>Busqueda Lineal</h3></div>
+          <div class="option" data-id="binarySearchLabel"><h3>Busqueda Binaria</h3></div>
+          <div class="option" data-id="hashingSearchlabel"><h3>Funciones Hash</h3></div>
+        </div>
+        <div class="controls">
+          <button class="btn secondary" id="prev1">&lt; Volver</button>
+          <button class="btn" id="next1">Siguiente &gt;</button>
+        </div>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="card" id="card-2" style="display:none">
+        <h2 class="title">Busquedas Internas - Arboles</h2>
+        <div class="subtitle">Varios tipos de estructuras arbóreas</div>
+        <div class="options">
+          <div class="option" data-id="residualTreeLabel"><h3>Arbol por Residuos</h3></div>
+          <div class="option" data-id="digitalTreeLabel"><h3>Arboles Digitales</h3></div>
+          <div class="option" data-id="multipleTreeLabel"><h3>Residuos Multiples</h3></div>
+          <div class="option" data-id="huffmanTreeLabel"><h3>Arboles Huffman</h3></div>
+        </div>
+        <div class="controls">
+          <button class="btn" id="prev2">&lt; Volver</button>
+          <button class="btn" id="next2">Siguiente &gt;</button>
+        </div>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="card" id="card-3" style="display:none">
+        <h2 class="title">Busquedas Externas</h2>
+        <div class="subtitle">Búsquedas que operan fuera de memoria principal</div>
+        <div class="options">
+          <div class="option" data-id="linealSearchLabel1"><h3>Busqueda Lineal (Externa)</h3></div>
+          <div class="option" data-id="binarySearchLabel1"><h3>Busqueda Binaria (Externa)</h3></div>
+          <div class="option" data-id="dinamicSearchLabel"><h3>Busqueda Dinamica</h3></div>
+        </div>
+        <div class="controls">
+          <button class="btn" id="prev3">&lt; Volver</button>
+          <button class="btn secondary" id="next3">Siguiente &gt;</button>
+        </div>
+      </div>
+
+      <div class="dinamico card" id="dinamicoArea"></div>
+    </div>
+
+    <div class="right">
+      <div class="logoWrap card">
+        <img src="../Assets/Logo.png" alt="Logo" id="Logo">
+      </div>
+      <div class="welcome card" id="bienvenidaHtml">
+        <div id="bienvenidaTxt">
+          Bienvenido. Esta aplicación contiene demos de búsquedas internas, externas, árboles, etc.
+        </div>
+      </div>
+      <div class="card" style="padding:12px;text-align:center">
+        <div class="version">Desarrollado por Brayan y Josep - v0.8.4-beta</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="background-decoration"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
