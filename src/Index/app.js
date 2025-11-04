@@ -33,7 +33,7 @@ document.querySelectorAll(".option").forEach(opt => {
 function openWindowFor(id) {
   const map = {
     linealSearchLabel: "../LinealSearch/LinealSearch.html",
-    binarySearchLabel: "BinarySearch.html",
+    binarySearchLabel: "../BinarySearch/BinarySearch.html",
     hashingSearchlabel: "HashingSearch.html",
     residualTreeLabel: "ResidualTreeSearch.html",
     digitalTreeLabel: "DigitalTreeSearch.html",
