@@ -1,0 +1,29 @@
+{
+  "name": "cienciasproject",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "install": "npm install electron"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DrBider-dev/CienciasProject.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/DrBider-dev/CienciasProject/issues"
+  },
+  "homepage": "https://github.com/DrBider-dev/CienciasProject#readme",
+  "dependencies": {
+    "electron": "^39.0.0"
+  },
+  "devDependencies": {
+    "electron-builder": "^26.0.12"
+  }
+}
