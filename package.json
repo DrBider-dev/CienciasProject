@@ -1,29 +1,54 @@
 {
   "name": "cienciasproject",
   "version": "1.0.0",
-  "description": "",
+  "description": "Aplicación de Ciencias II - Proyecto Universitario",
   "main": "src/main.js",
   "scripts": {
     "start": "electron .",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "install": "npm install electron"
+    "install": "npm install electron",
+    "dist": "electron-builder",
+    "dist:portable": "electron-builder --win portable"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/DrBider-dev/CienciasProject.git"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "busquedas",
+    "universidad",
+    "algoritmos"
+  ],
+  "author": "Brayan Aguirre",
   "license": "ISC",
   "type": "commonjs",
   "bugs": {
     "url": "https://github.com/DrBider-dev/CienciasProject/issues"
   },
   "homepage": "https://github.com/DrBider-dev/CienciasProject#readme",
-  "dependencies": {
-    "electron": "^39.0.0"
-  },
   "devDependencies": {
+    "electron": "^39.0.0",
     "electron-builder": "^26.0.12"
+  },
+  "build": {
+    "appId": "com.drbider.hashseek",
+    "productName": "Hash&Seek",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "**/*",
+      "!node_modules",
+      "!dist",
+      "!build"
+    ],
+    "win": {
+      "target": "portable",
+      "icon": "build/icon.ico"
+    },
+    "portable": {
+      "artifactName": "HashAndSeekPortable.exe"
+    }
   }
 }
