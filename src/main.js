@@ -1,18 +1,27 @@
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 
+let mainWindow;
+
 function createWindow() {
-  const win = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     width: 1280,
     height: 720,
     resizable: true,
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js')
+      preload: path.join(__dirname, 'preload.js'),
+      contextIsolation: true, // protege el entorno del renderer
+      nodeIntegration: false  // evita acceso directo a Node en el frontend
     }
   });
 
-  win.loadFile('src/Index/index.html');
+  mainWindow.loadFile('src/Index/index.html');
 }
+
+// Escuchamos cuando el renderer (frontend) pide navegar
+ipcMain.on('navigate-to', (event, pagePath) => {
+  mainWindow.loadFile(pagePath);
+});
 
 app.whenReady().then(createWindow);
 

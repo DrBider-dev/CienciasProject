@@ -1,62 +1,64 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hash&Seek - Búsqueda Lineal</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>LinealSearch — Hash&Seek</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-    <div class="container">
-        <header>
-            <div class="header-content">
-                <div class="back-button" id="backBtn">
-                    <span>&lt; Volver</span>
-                </div>
-                <div class="title">
-                    <h1>Búsqueda Lineal</h1>
-                </div>
-            </div>
-        </header>
-
-        <main>
-            <div class="control-panel">
-                <div class="create-section">
-                    <h2>Crear estructura</h2>
-                    <div class="input-group">
-                        <label for="sizeArrayField">Tamaño:</label>
-                        <input type="number" id="sizeArrayField" min="1" value="10">
-                        <label for="sizeKeyField">Tamaño de la Clave:</label>
-                        <input type="number" id="sizeKeyField" min="1" value="3">
-                    </div>
-                    <button id="btnCreate" class="btn primary">Crear</button>
-                </div>
-
-                <div class="operations-section">
-                    <h2>Insertar, Buscar o Eliminar Clave</h2>
-                    <div class="input-group">
-                        <label for="txtKey">Clave:</label>
-                        <input type="text" id="txtKey" placeholder="Ingrese la clave">
-                    </div>
-                    <div class="button-group">
-                        <button id="btnInsert" class="btn primary">Insertar</button>
-                        <button id="btnSearch" class="btn primary">Buscar</button>
-                        <button id="btnDelete" class="btn primary">Eliminar</button>
-                    </div>
-                </div>
-
-                <div class="file-section">
-                    <button id="btnSave" class="btn secondary">Guardar</button>
-                    <button id="btnOpen" class="btn secondary">Recuperar</button>
-                </div>
-            </div>
-
-            <div class="visualization-panel">
-                <div id="arrayContainer" class="array-container"></div>
-            </div>
-        </main>
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo-text">Busqueda Lineal</div>
+      
     </div>
 
-    <script src="app.js"></script>
+    <div class="actions">
+      <button id="btnBack" class="link">‹ Volver</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="controls">
+      <div class="form-row">
+        <label for="sizeArray">Tamaño del Arreglo:</label>
+        <input id="sizeArray" type="number" min="1" value="10" />
+        <button id="btnCreate" class="btn">Crear</button>
+      </div>
+
+      <div class="form-row">
+        <label for="keyLength">Tamaño de la Clave (dígitos):</label>
+        <input id="keyLength" type="number" min="1" value="2" />
+      </div>
+
+      <div class="form-row">
+        <label for="txtKey">Clave:</label>
+        <input id="txtKey" type="text" placeholder="p. ej. 05" />
+        <div class="row-buttons">
+          <button id="btnInsert" class="btn">Insertar</button>
+          <button id="btnSearch" class="btn">Buscar</button>
+          <button id="btnDelete" class="btn">Eliminar</button>
+        </div>
+      </div>
+
+      <div class="form-row file-row">
+        <input id="fileInput" type="file" accept=".bin,text/*" style="display:none" />
+        <button id="btnOpen" class="btn outline">Recuperar</button>
+        <button id="btnSave" class="btn outline">Guardar</button>
+      </div>
+
+      <div class="notes">
+        <small>Animación de búsqueda/descarte. Claves únicas. Archivo: primera línea = longitud de clave (o vacío), luego cada línea valor o vacío para null.</small>
+      </div>
+    </section>
+
+    <section class="visual">
+      <div class="cells-wrap" id="cellsWrap" tabindex="0">
+        <!-- Celdas renderizadas dinámicamente -->
+      </div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
 </body>
 </html>

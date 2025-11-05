@@ -317,15 +317,9 @@
     reader.readAsText(f);
   });
 
-  // Volver (en Electron probablemente cerrar o navegar)
+  // Volver
   btnBack.addEventListener('click', () => {
-    // En Electron puedes reemplazar esto por: window.close() o enviar evento IPC.
-    if (typeof window.require === 'function') {
-      // si estás en Electron y quieres cerrar la ventana:
-      try { window.close(); return; } catch {}
-    }
-    // fallback:
-    history.back();
+    window.electronAPI.navigateTo("src/Index/index.html");
   });
 
   // Render inicial

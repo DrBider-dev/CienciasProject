@@ -1,434 +1,314 @@
-class LinealSearch {
-    constructor() {
-        this.array = null;
-        this.longitudClaves = null;
-        this.init();
+// app.js — lógica modificada para búsqueda lineal
+// Mantiene la misma lógica: array de Integer|null, inserción sin duplicados,
+// búsqueda lineal, eliminación dejando null y ordenando nulls al final,
+// guardado/recuperación de archivo con primer línea = longitud de clave o vacío.
+
+(() => {
+  // Estado
+  let array = null;               // arreglo de Integer | null
+  let keyLength = null;           // longitud de la clave (Number)
+  const MINT = '#7cd4bb';
+  const DANGER = '#d25f5f';
+
+  // DOM
+  const sizeArrayEl = document.getElementById('sizeArray');
+  const keyLengthEl = document.getElementById('keyLength');
+  const txtKeyEl = document.getElementById('txtKey');
+  const btnCreate = document.getElementById('btnCreate');
+  const btnInsert = document.getElementById('btnInsert');
+  const btnSearch = document.getElementById('btnSearch');
+  const btnDelete = document.getElementById('btnDelete');
+  const btnSave = document.getElementById('btnSave');
+  const btnOpen = document.getElementById('btnOpen');
+  const fileInput = document.getElementById('fileInput');
+  const cellsWrap = document.getElementById('cellsWrap');
+  const btnBack = document.getElementById('btnBack');
+
+  // Utilidades
+  function showWarn(msg){ alert(msg); }
+  function showInfo(msg){ alert(msg); }
+
+  function render() {
+    // vaciar contenedor
+    cellsWrap.innerHTML = '';
+    if (!array) {
+      const hint = document.createElement('div');
+      hint.style.color = 'var(--muted)';
+      hint.innerText = 'No hay estructura: crea un arreglo para comenzar.';
+      cellsWrap.appendChild(hint);
+      return;
     }
 
-    init() {
-        // Inicializar elementos de la interfaz
-        this.arrayContainer = document.getElementById('arrayContainer');
-        
-        // Asignar event listeners a los botones
-        document.getElementById('btnCreate').addEventListener('click', () => this.onCreateArray());
-        document.getElementById('btnInsert').addEventListener('click', () => this.onInsert());
-        document.getElementById('btnSearch').addEventListener('click', () => this.onSearch());
-        document.getElementById('btnDelete').addEventListener('click', () => this.onDelete());
-        document.getElementById('btnSave').addEventListener('click', () => this.guardarArray());
-        document.getElementById('btnOpen').addEventListener('click', () => this.abrirArray());
-        document.getElementById('backBtn').addEventListener('click', () => this.goBack());
-        
-        // Inicializar la visualización
-        this.refreshCellsUI();
+    array.forEach((val, i) => {
+      const cell = document.createElement('div');
+      cell.className = 'cell' + (val === null ? ' empty' : '');
+      cell.dataset.index = i;
+      const idx = document.createElement('div');
+      idx.className = 'idx';
+      idx.innerText = `#${i + 1}`;
+      const v = document.createElement('div');
+      v.className = 'val';
+      v.innerText = val === null ? '' : String(val);
+      cell.appendChild(idx);
+      cell.appendChild(v);
+      cellsWrap.appendChild(cell);
+    });
+  }
+
+  // Ordena dejando nulls al final
+  function sortWithNulls(arr) {
+    arr.sort((a,b) => {
+      if (a === null && b === null) return 0;
+      if (a === null) return 1;
+      if (b === null) return -1;
+      return a - b;
+    });
+  }
+
+  // Crear arreglo
+  btnCreate.addEventListener('click', () => {
+    const size = Math.max(1, parseInt(sizeArrayEl.value || '0', 10));
+    if (isNaN(size) || size <= 0) return showWarn('Tamaño inválido');
+    array = new Array(size).fill(null);
+    const kl = parseInt(keyLengthEl.value || '0', 10);
+    keyLength = isNaN(kl) || kl <= 0 ? null : kl;
+    render();
+  });
+
+  // Insertar
+  btnInsert.addEventListener('click', () => {
+    if (!array) return showWarn('Por Favor crea la estructura');
+    const input = (txtKeyEl.value || '').trim();
+    const value = parseInt(input, 10);
+    if (isNaN(value)) return showWarn('Valor inválido');
+
+    if (keyLength == null) return showWarn('Longitud de claves no definida');
+    if (input.length !== keyLength) return showWarn(`Todas las claves deben tener ${keyLength} dígitos`);
+
+    // 2. validar repetidos
+    for (const existing of array) {
+      if (existing !== null && existing === value) {
+        return showWarn(`La clave ${value} ya existe en la tabla`);
+      }
     }
 
-    goBack() {
-        // En una aplicación Electron, aquí iría la lógica para volver a la ventana principal
-        alert("Volviendo al menú principal...");
-        // window.close() o navegación a otra ventana en Electron
+    // 3. buscar primer espacio libre
+    let freeIndex = -1;
+    for (let i=0;i<array.length;i++){
+      if (array[i] === null) { freeIndex = i; break; }
+    }
+    if (freeIndex === -1) return showWarn('No se pudo insertar, la tabla está llena');
+
+    // insertar y ordenar
+    array[freeIndex] = value;
+    sortWithNulls(array);
+    render();
+  });
+
+  // Generar pasos de búsqueda lineal
+  function linearSearchSteps(value) {
+    const steps = [];
+    let foundIndex = -1;
+
+    for (let i = 0; i < array.length; i++) {
+      steps.push(i);
+      if (array[i] === value) {
+        foundIndex = i;
+        break;
+      }
     }
 
-    // Algoritmo de ordenación Merge Sort
-    mergeSort(arr) {
-        if (arr == null || arr.length < 2) return;
-        this.mergeSortHelper(arr, 0, arr.length - 1);
-    }
+    return { steps, foundIndex };
+  }
 
-    mergeSortHelper(arr, left, right) {
-        if (left < right) {
-            const mid = left + Math.floor((right - left) / 2);
-            this.mergeSortHelper(arr, left, mid);
-            this.mergeSortHelper(arr, mid + 1, right);
-            this.merge(arr, left, mid, right);
+  function scrollCellIntoView(index) {
+    const el = cellsWrap.querySelector(`.cell[data-index="${index}"]`);
+    if (el) el.scrollIntoView({behavior:'smooth', block:'center', inline:'center'});
+  }
+
+  // Animación de búsqueda
+  function animateSearch(steps, foundIndex, onFinished) {
+    if (!array) return;
+    // deshabilitar entrada
+    txtKeyEl.disabled = true;
+    let i = 0;
+    const interval = setInterval(() => {
+      // limpiar highlights
+      Array.from(cellsWrap.querySelectorAll('.cell')).forEach(c => {
+        c.classList.remove('highlight-found','highlight-discard');
+      });
+
+      if (i >= steps.length) {
+        clearInterval(interval);
+        if (foundIndex === -1) {
+          showInfo('Valor no encontrado');
         }
-    }
+        txtKeyEl.disabled = false;
+        if (onFinished) onFinished();
+        return;
+      }
 
-    merge(arr, left, mid, right) {
-        const n1 = mid - left + 1;
-        const n2 = right - mid;
-        const L = new Array(n1);
-        const R = new Array(n2);
-        
-        for (let i = 0; i < n1; i++) L[i] = arr[left + i];
-        for (let j = 0; j < n2; j++) R[j] = arr[mid + 1 + j];
-        
-        let i = 0, j = 0, k = left;
-        while (i < n1 && j < n2) {
-            if (L[i] == null) {
-                arr[k++] = R[j++];
-            } else if (j < n2 && R[j] == null) {
-                arr[k++] = L[i++];
-            } else if (L[i] <= R[j]) {
-                arr[k++] = L[i++];
-            } else {
-                arr[k++] = R[j++];
-            }
+      const pos = steps[i];
+      const cell = cellsWrap.querySelector(`.cell[data-index="${pos}"]`);
+      if (cell) {
+        if (pos === foundIndex) {
+          cell.classList.add('highlight-found');
+          scrollCellIntoView(pos);
+          clearInterval(interval);
+          txtKeyEl.disabled = false;
+          if (onFinished) onFinished();
+          return;
+        } else {
+          cell.classList.add('highlight-discard');
+          scrollCellIntoView(pos);
         }
-        
-        while (i < n1) arr[k++] = L[i++];
-        while (j < n2) arr[k++] = R[j++];
-    }
+      }
+      i++;
+    }, 450);
+  }
 
-    // Operaciones principales
-    onCreateArray() {
-        try {
-            const size = Math.max(1, parseInt(document.getElementById('sizeArrayField').value));
-            this.array = new Array(size).fill(null);
-            this.longitudClaves = Math.max(1, parseInt(document.getElementById('sizeKeyField').value));
-            this.refreshCellsUI();
-        } catch (ex) {
-            this.showMessage("Tamaño o longitud de clave inválido(s)", "Error");
+  // Buscar (botón)
+  btnSearch.addEventListener('click', () => {
+    if (!array) return showWarn('Debe insertar al menos una clave');
+    const input = (txtKeyEl.value || '').trim();
+    const value = parseInt(input, 10);
+    if (isNaN(value)) return showWarn('Valor de búsqueda inválido');
+    if (keyLength == null) return showWarn('Debe insertar al menos una clave');
+    if (input.length !== keyLength) return showWarn(`Todas las claves deben tener ${keyLength} dígitos`);
+
+    render(); // refrescar vista antes de animación
+    const {steps, foundIndex} = linearSearchSteps(value);
+    animateSearch(steps, foundIndex, null);
+  });
+
+  // Animación de eliminación
+  function animateDelete(steps, foundIndex, onFinished) {
+    if (!array) return;
+    txtKeyEl.disabled = true;
+    let i = 0;
+    const interval = setInterval(() => {
+      Array.from(cellsWrap.querySelectorAll('.cell')).forEach(c => {
+        c.classList.remove('highlight-found','highlight-discard');
+      });
+
+      if (i >= steps.length) {
+        clearInterval(interval);
+        if (foundIndex === -1) {
+          showInfo('Valor no encontrado');
         }
-    }
+        txtKeyEl.disabled = false;
+        if (onFinished) onFinished();
+        return;
+      }
 
-    onInsert() {
-        try {
-            if (this.array == null) {
-                this.showMessage("Por Favor cree la Estructura", "Estructura no creada");
-                return;
-            }
-            
-            const input = document.getElementById('txtKey').value.trim();
-            const value = parseInt(input);
-
-            // Validar longitud de la clave
-            if (this.longitudClaves == null) {
-                this.showMessage("Longitud de claves no definida");
-                return;
-            } else if (input.length !== this.longitudClaves) {
-                this.showMessage(
-                    `Todas las claves deben tener ${this.longitudClaves} dígitos`,
-                    "Longitud inválida"
-                );
-                return;
-            }
-
-            // Validar si la clave ya existe
-            for (const existing of this.array) {
-                if (existing !== null && existing === value) {
-                    this.showMessage(
-                        `La clave ${value} ya existe en la tabla`,
-                        "Clave repetida"
-                    );
-                    return;
-                }
-            }
-
-            // Inserción lineal: buscar primer espacio libre
-            let inserted = false;
-            for (let i = 0; i < this.array.length; i++) {
-                if (this.array[i] === null) {
-                    this.array[i] = value;
-                    this.mergeSort(this.array);
-                    this.refreshCellsUI();
-                    inserted = true;
-                    break;
-                }
-            }
-
-            if (!inserted) {
-                this.showMessage(
-                    "No se pudo insertar, la tabla está llena",
-                    "Tabla llena"
-                );
-            }
-        } catch (ex) {
-            this.showMessage("Valor inválido", "Error");
+      const pos = steps[i];
+      const cell = cellsWrap.querySelector(`.cell[data-index="${pos}"]`);
+      if (cell) {
+        if (pos === foundIndex) {
+          cell.classList.add('highlight-found');
+          scrollCellIntoView(pos);
+          // Pausa breve y luego termina para que el usuario vea el encontrado
+          setTimeout(() => {
+            clearInterval(interval);
+            txtKeyEl.disabled = false;
+            if (onFinished) onFinished();
+          }, 350);
+          return;
+        } else {
+          cell.classList.add('highlight-discard');
+          scrollCellIntoView(pos);
         }
-    }
+      }
+      i++;
+    }, 400);
+  }
 
-    onSearch() {
-        try {
-            const input = document.getElementById('txtKey').value.trim();
-            const value = parseInt(input);
-            
-            if (this.longitudClaves == null) {
-                this.showMessage(
-                    "Debe Insertar al menos una clave",
-                    "Estructura Vacía"
-                );
-                return;
-            } else if (input.length !== this.longitudClaves) {
-                this.showMessage(
-                    `Todas las claves deben tener ${this.longitudClaves} dígitos`,
-                    "Longitud inválida"
-                );
-                return;
-            }
-            
-            // Ordenar array antes de buscar
-            this.mergeSort(this.array);
-            this.refreshCellsUI();
-            this.clearHighlights();
-            
-            const steps = [];
-            let foundIndex = -1;
-            
-            for (let i = 0; i < this.array.length; i++) {
-                steps.push(i);
-                if (this.array[i] !== null && this.array[i] === value) {
-                    foundIndex = i;
-                    break;
-                }
-            }
-            
-            this.animateSearch(steps, foundIndex);
-        } catch (ex) {
-            this.showMessage("Valor de búsqueda inválido", "Error");
+  // Eliminar
+  btnDelete.addEventListener('click', () => {
+    if (!array) return showWarn('Debe insertar al menos una clave');
+    const input = (txtKeyEl.value || '').trim();
+    const value = parseInt(input, 10);
+    if (isNaN(value)) return showWarn('Valor inválido');
+    if (keyLength == null) return showWarn('Debe insertar al menos una clave');
+    if (input.length !== keyLength) return showWarn(`Todas las claves deben tener ${keyLength} dígitos`);
+
+    render();
+    const {steps, foundIndex} = linearSearchSteps(value);
+    animateDelete(steps, foundIndex, () => {
+      if (foundIndex !== -1) {
+        array[foundIndex] = null;
+        sortWithNulls(array);
+        render();
+      }
+    });
+  });
+
+  // Guardar -> crear archivo de texto con el mismo formato Java
+  btnSave.addEventListener('click', () => {
+    if (!array) return showWarn('No hay nada para guardar');
+    // primera línea = keyLength o vacío
+    const lines = [];
+    lines.push(keyLength == null ? '' : String(keyLength));
+    for (const v of array) {
+      lines.push(v === null ? '' : String(v));
+    }
+    const blob = new Blob([lines.join('\n')], {type: 'text/plain'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    const filename = 'linearsearch.lin';  // Cambiado a .lin
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(a.href);
+  });
+
+  // Abrir -> input file
+  btnOpen.addEventListener('click', () => fileInput.click());
+
+  fileInput.addEventListener('change', (ev) => {
+    const f = ev.target.files && ev.target.files[0];
+    if (!f) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const text = String(reader.result || '');
+        const lines = text.split(/\r?\n/);
+        // primera línea = longitud de claves
+        const first = (lines.shift() || '').trim();
+        keyLength = (first === '') ? null : parseInt(first,10);
+        // resto: cada linea -> number o null
+        const parsed = [];
+        for (const L of lines) {
+          const t = (L || '').trim();
+          if (t === '') parsed.push(null);
+          else parsed.push(parseInt(t,10));
         }
-    }
-
-    onDelete() {
-        try {
-            const input = document.getElementById('txtKey').value.trim();
-            const value = parseInt(input);
-
-            // Validar longitud de la clave
-            if (this.longitudClaves == null) {
-                this.showMessage(
-                    "Debe insertar al menos una clave antes de eliminar",
-                    "Estructura vacía"
-                );
-                return;
-            } else if (input.length !== this.longitudClaves) {
-                this.showMessage(
-                    `Todas las claves deben tener ${this.longitudClaves} dígitos`,
-                    "Longitud inválida"
-                );
-                return;
-            }
-
-            this.mergeSort(this.array);
-            this.refreshCellsUI();
-            this.clearHighlights();
-            
-            const steps = [];
-            let foundIndex = -1;
-            
-            for (let i = 0; i < this.array.length; i++) {
-                steps.push(i);
-                if (this.array[i] !== null && this.array[i] === value) {
-                    foundIndex = i;
-                    break;
-                }
-            }
-            
-            this.animateDelete(steps, foundIndex, () => {
-                if (foundIndex !== -1) {
-                    this.array[foundIndex] = null;
-                    this.refreshCellsUI();
-                    this.showMessage(
-                        `Clave ${value} eliminada de la posición ${foundIndex + 1}`,
-                        "Eliminado"
-                    );
-                } else {
-                    this.showMessage(
-                        `La clave ${value} no se encuentra en la tabla`,
-                        "No encontrado"
-                    );
-                }
-            });
-        } catch (ex) {
-            this.showMessage("Clave inválida", "Error");
+        array = parsed.length ? parsed : null;
+        // Asegurarse que es array (si se cargó vacío, crear 0-length)
+        if (!array) array = null;
+        // update inputs UI
+        if (array) {
+          sizeArrayEl.value = array.length;
         }
-    }
+        keyLengthEl.value = keyLength == null ? '' : String(keyLength);
+        render();
+        showInfo('Archivo cargado correctamente.');
+      } catch (err) {
+        showWarn('Error al abrir: ' + err);
+      } finally {
+        fileInput.value = '';
+      }
+    };
+    reader.readAsText(f);
+  });
 
-    // Animaciones
-    animateSearch(steps, foundIndex) {
-        this.clearHighlights();
-        let currentStep = 0;
-        const txtKey = document.getElementById('txtKey');
-        txtKey.disabled = true;
+  // Volver
+  btnBack.addEventListener('click', () => {
+    window.electronAPI.navigateTo("src/Index/index.html");
+  });
 
-        const animateStep = () => {
-            if (currentStep >= steps.length) {
-                if (foundIndex === -1) {
-                    this.showMessage(
-                        "Valor no encontrado",
-                        "Buscar"
-                    );
-                }
-                txtKey.disabled = false;
-                return;
-            }
+  // Render inicial
+  render();
 
-            const pos = steps[currentStep];
-            const cell = document.getElementById(`cell-${pos}`);
-            
-            if (cell) {
-                if (pos === foundIndex) {
-                    // Encontrado → verde
-                    cell.classList.add('highlight-green');
-                    this.scrollCellToVisible(pos);
-                    txtKey.disabled = false;
-                    return;
-                } else {
-                    // Descartado → rojo
-                    cell.classList.add('highlight-red');
-                    this.scrollCellToVisible(pos);
-                }
-            }
-            
-            currentStep++;
-            setTimeout(animateStep, 400);
-        };
-
-        animateStep();
-    }
-
-    animateDelete(steps, foundIndex, onFinished) {
-        this.clearHighlights();
-        let currentStep = 0;
-        const txtKey = document.getElementById('txtKey');
-        txtKey.disabled = true;
-
-        const animateStep = () => {
-            if (currentStep >= steps.length) {
-                if (foundIndex === -1) {
-                    this.showMessage(
-                        "Valor no encontrado",
-                        "Buscar"
-                    );
-                }
-                txtKey.disabled = false;
-                
-                // Llamar al callback cuando termina la animación
-                if (onFinished) {
-                    onFinished();
-                }
-                return;
-            }
-
-            const pos = steps[currentStep];
-            const cell = document.getElementById(`cell-${pos}`);
-            
-            if (cell) {
-                if (pos === foundIndex) {
-                    // Encontrado → verde
-                    cell.classList.add('highlight-green');
-                    this.scrollCellToVisible(pos);
-                    txtKey.disabled = false;
-                    
-                    // Llamar al callback cuando encuentra el elemento
-                    if (onFinished) {
-                        onFinished();
-                    }
-                    return;
-                } else {
-                    // Descartado → rojo
-                    cell.classList.add('highlight-red');
-                    this.scrollCellToVisible(pos);
-                }
-            }
-            
-            currentStep++;
-            setTimeout(animateStep, 400);
-        };
-
-        animateStep();
-    }
-
-    // Guardado y recuperación de archivos
-    guardarArray() {
-        if (!this.array) {
-            this.showMessage("No hay datos para guardar", "Error");
-            return;
-        }
-
-        const data = {
-            longitudClaves: this.longitudClaves,
-            array: this.array
-        };
-
-        const dataStr = JSON.stringify(data);
-        const dataBlob = new Blob([dataStr], { type: 'application/json' });
-        
-        // Crear un enlace de descarga
-        const downloadLink = document.createElement('a');
-        downloadLink.download = 'busqueda_lineal.lin';
-        downloadLink.href = URL.createObjectURL(dataBlob);
-        downloadLink.click();
-        
-        this.showMessage("Archivo guardado correctamente.");
-    }
-
-    abrirArray() {
-        const input = document.createElement('input');
-        input.type = 'file';
-        input.accept = '.lin';
-        
-        input.onchange = e => {
-            const file = e.target.files[0];
-            if (!file) return;
-            
-            const reader = new FileReader();
-            reader.onload = event => {
-                try {
-                    const data = JSON.parse(event.target.result);
-                    this.longitudClaves = data.longitudClaves;
-                    this.array = data.array;
-                    
-                    // Actualizar campos de entrada
-                    document.getElementById('sizeArrayField').value = this.array.length;
-                    document.getElementById('sizeKeyField').value = this.longitudClaves || '';
-                    
-                    this.refreshCellsUI();
-                    this.showMessage("Archivo cargado correctamente.");
-                } catch (ex) {
-                    this.showMessage("Error al cargar el archivo", "Error");
-                }
-            };
-            reader.readAsText(file);
-        };
-        
-        input.click();
-    }
-
-    // UI: refresco y utilidades
-    refreshCellsUI() {
-        this.arrayContainer.innerHTML = '';
-        
-        if (!this.array) return;
-        
-        for (let i = 0; i < this.array.length; i++) {
-            const cell = document.createElement('div');
-            cell.className = 'cell';
-            cell.id = `cell-${i}`;
-            
-            const position = document.createElement('div');
-            position.className = 'position';
-            position.textContent = i + 1;
-            
-            const value = document.createElement('div');
-            value.className = 'value';
-            value.textContent = this.array[i] !== null ? this.array[i] : '';
-            
-            cell.appendChild(position);
-            cell.appendChild(value);
-            this.arrayContainer.appendChild(cell);
-        }
-    }
-
-    clearHighlights() {
-        const cells = document.getElementsByClassName('cell');
-        for (let cell of cells) {
-            cell.classList.remove('highlight-green', 'highlight-red');
-        }
-    }
-
-    scrollCellToVisible(index) {
-        const cell = document.getElementById(`cell-${index}`);
-        if (cell) {
-            cell.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-        }
-    }
-
-    showMessage(message, title = "Información") {
-        alert(`${title}: ${message}`);
-    }
-}
-
-// Inicializar la aplicación cuando se carga la página
-document.addEventListener('DOMContentLoaded', () => {
-    new LinealSearch();
-});
+})();

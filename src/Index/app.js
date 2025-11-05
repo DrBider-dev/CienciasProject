@@ -32,21 +32,27 @@ document.querySelectorAll(".option").forEach(opt => {
 
 function openWindowFor(id) {
   const map = {
-    linealSearchLabel: "../LinealSearch/LinealSearch.html",
-    binarySearchLabel: "../BinarySearch/BinarySearch.html",
-    hashingSearchlabel: "HashingSearch.html",
-    residualTreeLabel: "ResidualTreeSearch.html",
-    digitalTreeLabel: "DigitalTreeSearch.html",
-    multipleTreeLabel: "MultipleTreeSearch.html",
-    huffmanTreeLabel: "HuffmanTreeSearch.html",
-    linealSearchLabel1: "ExternalLinealSearch.html",
-    binarySearchLabel1: "ExternalBinarySearch.html",
-    dinamicSearchLabel: "DinamicSearch.html"
+    linealSearchLabel: "src/LinealSearch/LinealSearch.html",
+    binarySearchLabel: "src/BinarySearch/BinarySearch.html",
+    hashingSearchlabel: "src/HashingSearch/HashingSearch.html",
+    residualTreeLabel: "src/ResidualTreeSearch/ResidualTreeSearch.html",
+    digitalTreeLabel: "src/DigitalTreeSearch/DigitalTreeSearch.html",
+    multipleTreeLabel: "src/MultipleTreeSearch/MultipleTreeSearch.html",
+    huffmanTreeLabel: "src/HuffmanTreeSearch/HuffmanTreeSearch.html",
+    linealSearchLabel1: "src/ExternalLinealSearch/ExternalLinealSearch.html",
+    binarySearchLabel1: "src/ExternalBinarySearch/ExternalBinarySearch.html",
+    dinamicSearchLabel: "src/DinamicSearch/DinamicSearch.html"
   };
+
   const url = map[id];
-  if (url) window.open(url, "_blank");
-  else alert("Abrir: " + id);
+  if (url) {
+    // En lugar de abrir una nueva ventana, pedimos al main.js que cargue la página
+    window.electronAPI.navigateTo(url);
+  } else {
+    alert("Página no encontrada: " + id);
+  }
 }
+
 
 const cards = [document.getElementById("card-1"), document.getElementById("card-2"), document.getElementById("card-3")];
 let current = 0;
