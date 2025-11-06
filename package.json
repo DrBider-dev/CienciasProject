@@ -5,14 +5,12 @@
   "main": "src/main.js",
   "scripts": {
     "start": "electron .",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "install": "npm install electron",
     "dist": "electron-builder",
     "dist:portable": "electron-builder --win portable"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/DrBider-dev/CienciasProject.git"
+    "url": "https://github.com/DrBider-dev/CienciasProject.git"
   },
   "keywords": [
     "busquedas",
@@ -27,28 +25,54 @@
   },
   "homepage": "https://github.com/DrBider-dev/CienciasProject#readme",
   "devDependencies": {
-    "electron": "^39.0.0",
+    "electron": "^39.1.0",
     "electron-builder": "^26.0.12"
   },
   "build": {
     "appId": "com.drbider.hashseek",
     "productName": "Hash&Seek",
+    "copyright": "© 2025 Brayan Aguirre",
     "directories": {
       "output": "dist",
       "buildResources": "build"
     },
     "files": [
-      "**/*",
-      "!node_modules",
-      "!dist",
-      "!build"
+      "src/**/*",
+      "package.json",
+      "!node_modules/**/*",
+      "!dist/**/*",
+      "!build/**/*"
     ],
+    "asar": true,
     "win": {
-      "target": "portable",
-      "icon": "build/icon.ico"
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        },
+        {
+          "target": "portable",
+          "arch": ["x64"]
+        }
+      ],
+      "icon": "build/icon.ico",
+      "artifactName": "${productName}-Setup-${version}.${ext}"
     },
-    "portable": {
-      "artifactName": "HashAndSeekPortable.exe"
-    }
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Hash&Seek",
+      "deleteAppDataOnUninstall": false
+    },
+    "extraResources": [
+      {
+        "from": "src/Assets/",
+        "to": "src/Assets/",
+        "filter": ["**/*"]
+      }
+    ],
+    "publish": null
   }
 }
