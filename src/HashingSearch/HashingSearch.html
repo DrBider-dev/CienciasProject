@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Hash&Seek — Migración Electron</title>
+
+  <!-- Usé tu styles.css exactamente (asegúrate de colocarlo al lado de este HTML) -->
+  <link rel="stylesheet" href="styles.css" />
+
+</head>
+<body>
+  <div class="topbar">
+    <div class="brand">
+      <div class="logo-text">Hash&amp;Seek</div>
+      <div class="subtitle">Visualizador de Hashing</div>
+    </div>
+    <div>
+      <!-- Aquí dejamos los botones de ventana nativos de electron; no replicamos los custom -->
+      <button class="link" id="returnBtn">‹ Volver</button>
+    </div>
+  </div>
+
+  <div class="container">
+    <!-- Controles arriba -->
+    <div class="controls">
+      <div class="form-row">
+        <label for="hashSelect">Método:</label>
+        <select id="hashSelect">
+          <option>H. Mod</option>
+          <option>H. Cuadrado</option>
+          <option>H. Plegamiento</option>
+          <option>H. Truncamiento</option>
+        </select>
+      </div>
+
+      <div class="form-row">
+        <label for="sizeArray">Tamaño del Arreglo:</label>
+        <input id="sizeArray" type="number" min="1" value="10" />
+        <button class="btn outline" id="createBtn">Crear</button>
+      </div>
+
+      <div class="form-row">
+        <label for="sizeKey">Tamaño de la Clave (dígitos):</label>
+        <input id="sizeKey" type="number" min="1" value="2" />
+      </div>
+
+      <div class="form-row">
+        <label for="keyInput">Clave:</label>
+        <input id="keyInput" type="text" placeholder="p. ej. 05" />
+      </div>
+
+      <div class="form-row">
+        <button class="btn" id="insertBtn">Insertar</button>
+        <button class="btn" id="searchBtn">Buscar</button>
+        <button class="btn" id="deleteBtn">Eliminar</button>
+      </div>
+
+      <div class="form-row">
+        <button class="btn outline" id="loadBtn">Recuperar</button>
+        <button class="btn outline" id="saveBtn">Guardar</button>
+        <!-- input file escondido para recuperar -->
+        <input id="fileInput" type="file" accept=".mod" style="display:none;">
+      </div>
+
+      <div class="notes" id="notes">Animación de búsqueda/descartes. Claves únicas. Archivo: primera línea = longitud de clave (o vacío), luego cada línea valor o vacío para null.</div>
+    </div>
+
+    <!-- Visual abajo -->
+    <div class="visual">
+      <div class="cells-wrap" id="cellsWrap">
+        <!-- Celdas renderizadas por JS -->
+        <div style="width:8px;"></div>
+        <div style="color:var(--muted); padding: 24px;">No hay estructura: crea un arreglo para comenzar.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
