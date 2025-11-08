@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Árbol Digital — Visualizador</title>
+
+  <!-- Usa el mismo styles.css (tema oscuro) -->
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="topbar">
+    <div class="brand">
+      <div class="logo-text">Árbol Digital</div>
+      <div class="subtitle">Árbol Digital de Búsqueda — Visualizador</div>
+    </div>
+    <div class="right-controls">
+      <button id="volverBtn" class="link">‹ Volver</button>
+    </div>
+  </div>
+
+  <div class="page">
+    <!-- Controles superiores (estilo a lo largo del ancho) -->
+    <div class="controls-bar">
+      <div class="controls-left">
+        <label class="label-inline">Clave:</label>
+        <input id="inputField" class="text-input" type="text" placeholder="Ej. A o ABC"/>
+      </div>
+
+      <div class="controls-right">
+        <button id="insertBtn" class="btn">Insertar</button>
+        <button id="searchBtn" class="btn">Buscar</button>
+        <button id="deleteBtn" class="btn">Eliminar</button>
+        <button id="clearBtn" class="btn">Limpiar</button>
+        <button id="saveBtn" class="btn outline">Guardar</button>
+        <button id="loadBtn" class="btn outline">Recuperar</button>
+        <input id="fileInput" type="file" accept=".mul,.json" style="display:none;">
+      </div>
+    </div>
+
+    <!-- Main content: left canvas, right sidebar -->
+    <div class="content">
+      <div class="canvas-panel">
+        <canvas id="treeCanvas"></canvas>
+      </div>
+
+      <aside class="sidebar">
+        <div class="card">
+          <div class="card-title">Claves (orden de inserción):</div>
+          <div id="keysList" class="keys-list">
+            <!-- se rellena por JS -->
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

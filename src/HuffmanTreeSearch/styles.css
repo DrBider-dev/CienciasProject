@@ -1,0 +1,224 @@
+:root {
+  --bg: #0f1113;
+  --panel: #121416;
+  --muted: #9aa3a8;
+  --accent: #7cd4bb;
+  --card: #17191b;
+  --danger: #d25f5f;
+  --glass: rgba(255,255,255,0.03);
+  --cell-w: 120px;
+  --cell-h: 90px;
+}
+
+* {
+  box-sizing: border-box;
+  font-family: Inter, "Segoe UI", Roboto, system-ui, Arial, sans-serif;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  background: linear-gradient(180deg, var(--bg), #071014);
+  color: #e6eef0;
+  overflow: hidden;
+}
+
+.topbar {
+  height: 84px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent);
+}
+
+.brand {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.logo-text {
+  font-weight: 700;
+  color: var(--accent);
+  font-size: 28px;
+  letter-spacing: 1px;
+}
+.subtitle {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.link {
+  background: none;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 16px;
+  padding: 6px;
+}
+.link:hover {
+  color: var(--accent);
+}
+
+/* Layout principal */
+.container {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 24px;
+  height: calc(100vh - 84px);
+  gap: 20px;
+}
+
+/* Panel visual */
+.visual {
+  background: var(--card);
+  padding: 18px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  flex: 1;
+  border: 1px solid rgba(255,255,255,0.02);
+}
+
+/* Controles */
+.controls {
+  background: var(--panel);
+  padding: 18px 24px;
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.6);
+  border: 1px solid rgba(255,255,255,0.02);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+}
+
+.form-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.form-row label {
+  color: var(--muted);
+  font-size: 14px;
+}
+.form-row input[type="number"],
+.form-row input[type="text"] {
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.04);
+  background: var(--glass);
+  color: #e8f5ef;
+  width: 100px;
+}
+
+.btn {
+  background: var(--accent);
+  border: none;
+  color: #0a0a0a;
+  padding: 8px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+.btn:hover {
+  filter: brightness(0.95);
+  transform: translateY(-1px);
+}
+.btn.outline {
+  background: transparent;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+}
+
+/* Para el árbol de Huffman */
+.cells-wrap {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  width: 100%;
+  max-width: 100%;
+  padding: 12px;
+}
+
+.cell {
+  width: var(--cell-w);
+  height: var(--cell-h);
+  background: linear-gradient(180deg, rgba(255,255,255,0.012), transparent);
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.6);
+  border: 1px solid rgba(255,255,255,0.02);
+  transition: box-shadow .18s, transform .12s;
+  color: #dff7f0;
+}
+.cell .idx {
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+.cell .val {
+  font-size: 22px;
+  font-weight: 700;
+}
+.cell.empty .val {
+  color: rgba(255,255,255,0.25);
+}
+.cell.highlight-found {
+  box-shadow: 0 10px 26px rgba(124,212,187,0.12);
+  border: 2px solid rgba(124,212,187,0.25);
+  transform: translateY(-4px);
+}
+.cell.highlight-discard {
+  box-shadow: 0 10px 26px rgba(210,95,95,0.12);
+  border: 2px solid rgba(210,95,95,0.22);
+  transform: translateY(-2px);
+}
+
+.notes {
+  width: 100%;
+  text-align: center;
+  color: var(--muted);
+  font-size: 12px;
+  margin-top: 8px;
+}
+
+@media (max-width: 900px) {
+  .container {
+    padding: 14px;
+  }
+  :root {
+    --cell-w: 96px;
+    --cell-h: 82px;
+  }
+}
+
+/* Estilos para scrollbars cuando aparecen */
+.tree-container::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.tree-container::-webkit-scrollbar-track {
+  background: rgba(255,255,255,0.05);
+  border-radius: 4px;
+}
+
+.tree-container::-webkit-scrollbar-thumb {
+  background: var(--accent);
+  border-radius: 4px;
+}
+
+.tree-container::-webkit-scrollbar-thumb:hover {
+  background: #5bc4a8;
+}
