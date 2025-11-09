@@ -6,9 +6,9 @@ const dinamicoTexts = {
   digitalTreeLabel: "Árboles Digitales<br>Estructura basada en los dígitos o bits de las claves, ideal para búsquedas por prefijo.",
   multipleTreeLabel: "Residuos Múltiples<br>Variante de árboles que permite particionar claves en varias ramas según múltiples residuos o criterios.",
   huffmanTreeLabel: "Árboles Huffman<br>Estructura usada en compresión que organiza símbolos por frecuencia, optimizando el código de longitud variable.",
-  linealSearchLabel1: "Búsqueda Lineal (Externa)<br>Búsqueda en estructuras por bloques secuencialmente, útil para datos en almacenamiento externo.",
-  binarySearchLabel1: "Búsqueda Binaria (Externa)<br>Versión adaptada a bloques externos, aplicando dividir y conquistar sobre índices o bloques.",
-  dinamicSearchLabel: "Búsqueda Dinámica<br>Diseñada para estructuras que cambian en tiempo real, ajustando los índices dinámicamente."
+  linealSearchEX: "Búsqueda Lineal (Externa)<br>Búsqueda en estructuras por bloques secuencialmente, útil para datos en almacenamiento externo.",
+  binarySearchEX: "Búsqueda Binaria (Externa)<br>Versión adaptada a bloques externos, aplicando dividir y conquistar sobre índices o bloques.",
+  dinamicSearchEX: "Búsqueda Dinámica<br>Diseñada para estructuras que cambian en tiempo real, ajustando los índices dinámicamente."
 };
 
 const dinamicoArea = document.getElementById("dinamicoArea");
@@ -41,7 +41,10 @@ function openWindowFor(id) {
     huffmanTreeLabel: "src/HuffmanTreeSearch/HuffmanTreeSearch.html",
     linealSearchLabel1: "src/ExternalLinealSearch/ExternalLinealSearch.html",
     binarySearchLabel1: "src/ExternalBinarySearch/ExternalBinarySearch.html",
-    dinamicSearchLabel: "src/DinamicSearch/DinamicSearch.html"
+    dinamicSearchLabel: "src/DinamicSearch/DinamicSearch.html",
+    linealSearchEX: "src/LinealSearchEX/linealSearchEX.html",
+    binarySearchEX: "src/BinarySearchEX/binarySearchEX.html",
+    dinamicSearchEX: "src/DinamicSearchEX/dinamicSearchEX.html"
   };
 
   const url = map[id];

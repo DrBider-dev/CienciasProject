@@ -189,3 +189,17 @@ body {
   .app { flex-direction: column; }
   .right { width: 100%; }
 }
+.col-block {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: rgba(255,255,255,0.05);
+  padding: 8px;
+  border-radius: 10px;
+}
+
+.cells-wrap {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+}
