@@ -69,6 +69,5 @@ document.getElementById("next2").onclick = () => showCard(2);
 document.getElementById("prev1").onclick = () => showCard(0);
 document.getElementById("prev2").onclick = () => showCard(0);
 document.getElementById("prev3").onclick = () => showCard(1);
-document.getElementById("closeX").onclick = () => window.close();
 
 document.addEventListener("keydown", e => { if (e.key === "Escape") hideDinamico(); });

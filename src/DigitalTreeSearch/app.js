@@ -61,7 +61,33 @@ class DigitalTreeSearch {
     }
 
     existsInTree(ch) {
-        return this.insertionOrder.includes(ch.toUpperCase());
+        ch = ch.toUpperCase();
+        // Verificar tanto en insertionOrder como buscar en el árbol
+        if (this.insertionOrder.includes(ch)) return true;
+
+        // Búsqueda adicional en el árbol por si hay inconsistencia
+        if (this.root === null) return false;
+
+        const bits = this.letterTo5Bits(ch);
+        let current = this.root;
+
+        for (let i = 0; i < bits.length; i++) {
+            if (current.value === ch) return true;
+
+            const bit = bits.charAt(i);
+            if (bit === '0') {
+                if (current.left === null) break;
+                current = current.left;
+            } else {
+                if (current.right === null) break;
+                current = current.right;
+            }
+
+            // Verificar el nodo actual en cada paso
+            if (current.value === ch) return true;
+        }
+
+        return false;
     }
 
     insertDirect(ch) {
@@ -121,7 +147,7 @@ class DigitalTreeSearch {
 
         const ch = text.charAt(0).toUpperCase();
         if (!ch.match(/[A-Z]/)) {
-            alert('Por favor, ingrese una letra válida (A-Z)');
+            alert('Por favor, ingrese una clave válida (A-Z)');
             return;
         }
 
@@ -358,11 +384,12 @@ class DigitalTreeSearch {
             const c = text.charAt(i);
             if (!c.match(/[a-zA-Z]/)) continue;
             const up = c.toUpperCase();
+            // VERIFICACIÓN CORREGIDA: usar el árbol actual para verificar duplicados
             if (!this.existsInTree(up)) letters.push(up);
         }
 
         if (letters.length === 0) {
-            alert('No hay letras nuevas para insertar (o estaban duplicadas).');
+            alert('No hay claves nuevas para insertar (o estaban duplicadas).');
             return;
         }
 
@@ -382,6 +409,14 @@ class DigitalTreeSearch {
 
     animateStepsForLetter(ch, steps) {
         return new Promise(resolve => {
+            // Verificar duplicados al inicio
+            if (this.existsInTree(ch)) {
+                this.status = `Inserción omitida: ${ch} ya existe`;
+                this.drawTree();
+                resolve(); // Resolvemos la promesa inmediatamente
+                return;
+            }
+
             this.currentStep = 0;
             this.animationSteps = steps;
             this.animationCallback = resolve;
@@ -410,6 +445,7 @@ class DigitalTreeSearch {
                     this.highlightedNode = null;
                     this.insertionParent = null;
 
+                    // Realizar la inserción real
                     let inserted = false;
                     if (this.root === null) {
                         this.root = new this.Node(ch);
@@ -442,7 +478,7 @@ class DigitalTreeSearch {
                     if (inserted) this.insertionOrder.push(ch);
                     this.status = inserted ? `Inserción completada: ${ch}` : `No se pudo insertar: ${ch}`;
                     this.drawTree();
-                    this.animationCallback();
+                    this.animationCallback(); // Esto debería ser resolve, pero ya estamos usando this.animationCallback = resolve
                 }
             }, 175);
         });
@@ -617,7 +653,7 @@ class DigitalTreeSearch {
     deleteSelected() {
         const text = this.inputField.value.trim();
         if (!text) {
-            alert('Escriba la(s) letra(s) a eliminar en el campo "Clave".');
+            alert('Escriba la(s) clave(s) a eliminar en el campo "Clave".');
             return;
         }
 
@@ -646,7 +682,7 @@ class DigitalTreeSearch {
         }
 
         if (toDelete.length === 0) {
-            alert(`Ninguna de las letras indicadas está en el árbol: ${notFound.join(', ')}`);
+            alert(`Ninguna de las claves indicadas está en el árbol: ${notFound.join(', ')}`);
             return;
         }
 

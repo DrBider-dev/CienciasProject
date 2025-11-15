@@ -1,4 +1,4 @@
-// tree.js
+// tree.js - MODIFICADO PARA ESTILO RETRO
 // Migración fiel de ResidualTreeSearch.java -> JS
 // Autor: generado por assistant (traducción de la lógica de Java original)
 
@@ -15,12 +15,13 @@
     const EXTRA_TOP_SPACE = 40;
     const DRAW_OFFSET_Y = HEADER_TOP_GAP + HEADER_HEIGHT + EXTRA_TOP_SPACE;
 
-    // Colores oscuros que combinan con el tema
-    const HEADER_BLUE = '#0A2B3E';
-    const ACCENT = '#26C6B0';   // verde menta
-    const HIGHLIGHT = 'rgb(255,140,0)'; // naranja
-    const NODE_BG = '#121416'; // Fondo oscuro para nodos
-    const NODE_TEXT = '#e6eef0'; // Texto claro
+    // COLORES MODIFICADOS PARA ESTILO RETRO
+    const HEADER_BLUE = '#0A2B3E'; // Mantenido pero no se usa en el nuevo diseño
+    const ACCENT = '#716F6F';   // Gris neutro estilo retro
+    const HIGHLIGHT = '#D6C7A5'; // Beige suave para highlights
+    const NODE_BG = '#f0f0f0'; // Fondo claro para nodos (RETRO)
+    const NODE_TEXT = '#000000'; // Texto negro (RETRO)
+    const CANVAS_BG = '#f8f8f8'; // Fondo del canvas claro (RETRO)
 
     // --- ESTRUCTURAS de datos (Node, PathStep, ParentRef) ---
     function Node(isLink = true, letter = null) {
@@ -51,13 +52,18 @@
 
     // --- Canvas y UI ---
     const canvas = document.getElementById('treeCanvas');
+    // Verificar que el canvas existe antes de obtener el contexto
+    if (!canvas) {
+        console.error('Canvas element not found');
+        return;
+    }
     const ctx = canvas.getContext('2d');
     const statusEl = document.getElementById('status');
 
-    // UI buttons/inputs
+    // UI buttons/inputs - CON VERIFICACIONES
     const inputField = document.getElementById('inputField');
     const insertBtn = document.getElementById('insertBtn');
-    const insertAnimBtn = document.getElementById('insertAnimBtn');
+    // insertAnimBtn no existe en el HTML, lo removemos
     const deleteBtn = document.getElementById('deleteBtn');
     const clearBtn = document.getElementById('clearBtn');
     const searchBtn = document.getElementById('searchBtn');
@@ -66,12 +72,20 @@
     const fileInput = document.getElementById('fileInput');
     const backBtn = document.getElementById('backBtn');
 
+    // Verificar que los elementos críticos existen
+    if (!statusEl) {
+        console.error('Status element not found');
+        return;
+    }
+
     // Para el scroll
     let contentWidth = 1000, contentHeight = 600;
     let treeWidth = 0, treeHeight = 0;
 
     function resizeCanvas() {
         const container = canvas.parentElement;
+        if (!container) return;
+
         const rect = container.getBoundingClientRect();
         const containerWidth = rect.width;
         const containerHeight = rect.height;
@@ -91,7 +105,10 @@
         repaint();
     }
 
-    window.addEventListener('resize', resizeCanvas);
+    // Solo agregar event listener si window existe
+    if (typeof window !== 'undefined') {
+        window.addEventListener('resize', resizeCanvas);
+    }
 
     // --- UTILIDADES de bits (fiel a Java) ---
     function codeBits(letter) {
@@ -289,25 +306,18 @@
         }
     }
 
-    // --- DIBUJO en canvas ---
+    // --- DIBUJO en canvas - MODIFICADO PARA ESTILO RETRO ---
     function repaint() {
-        // Fondo oscuro
-        ctx.fillStyle = '#0f1113';
+        // FONDO CLARO ESTILO RETRO
+        ctx.fillStyle = CANVAS_BG;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
         ctx.save();
 
-        // header rectangle
-
-        ctx.fillRect(0, HEADER_TOP_GAP, canvas.width, HEADER_HEIGHT);
-
-        // title text
-        ctx.fillStyle = '#ffffff';
-        //ctx.font = 'bold 20px sans-serif';
-        //ctx.fillText('Árbol por Residuos', 20, HEADER_TOP_GAP + 38);
+        // header rectangle - ELIMINADO (no necesario en estilo retro)
 
         // edges primero
-        ctx.strokeStyle = ACCENT;
+        ctx.strokeStyle = '#a0a0a0'; // Gris medio para aristas
         ctx.lineWidth = 2;
         drawEdges(root);
 
@@ -372,8 +382,8 @@
     function drawBitLabel(x1, y1, x2, y2, bit) {
         const mx = Math.floor((x1 + x2) / 2) - 6;
         const my = Math.floor((y1 + y2) / 2) - 6;
-        ctx.fillStyle = ACCENT;
-        ctx.font = '12px sans-serif';
+        ctx.fillStyle = '#666666'; // Texto gris
+        ctx.font = '12px Tahoma'; // Fuente retro
         ctx.fillText(bit, mx, my);
     }
 
@@ -387,27 +397,27 @@
         const isHighlight = (node === highlightNode);
 
         if (!node.isLink) {
-            // Nodos de información: RECTÁNGULOS (cuadrados)
+            // Nodos de información: RECTÁNGULOS (cuadrados) - ESTILO RETRO
             ctx.fillStyle = NODE_BG;
             ctx.fillRect(r.x, r.y, r.w, r.h);
             ctx.lineWidth = 2;
-            ctx.strokeStyle = isHighlight ? HIGHLIGHT : ACCENT;
+            ctx.strokeStyle = isHighlight ? HIGHLIGHT : '#a0a0a0'; // Borde gris medio
             ctx.strokeRect(r.x, r.y, r.w, r.h);
 
             // letter
             ctx.fillStyle = NODE_TEXT;
-            ctx.font = 'bold 14px sans-serif';
+            ctx.font = 'bold 14px Tahoma'; // Fuente retro
             const s = String(node.letter);
             const sw = ctx.measureText(s).width;
             ctx.fillText(s, r.x + (r.w - sw) / 2, r.y + (r.h / 2) + 5);
         } else {
-            // Nodos de enlace: CÍRCULOS
+            // Nodos de enlace: CÍRCULOS - ESTILO RETRO
             ctx.fillStyle = NODE_BG;
             ctx.beginPath();
             ctx.ellipse(r.x + r.w / 2, r.y + r.h / 2, r.w / 2, r.h / 2, 0, 0, Math.PI * 2);
             ctx.fill();
             ctx.lineWidth = 2;
-            ctx.strokeStyle = isHighlight ? HIGHLIGHT : ACCENT;
+            ctx.strokeStyle = isHighlight ? HIGHLIGHT : '#a0a0a0'; // Borde gris medio
             ctx.stroke();
         }
 
@@ -442,15 +452,27 @@
     // --- ANIMACIÓN DE BÚSQUEDA ---
     let searchTimer = null;
     function animateSearch(letter) {
-        if (!letter || letter.length === 0) { setStatus('Nada que buscar'); return; }
+        if (!letter || letter.length === 0) {
+            setStatus('Nada que buscar');
+            return;
+        }
         const c = letter.toUpperCase().charAt(0);
-        if (c < 'A' || c > 'Z') { setStatus('Clave inválida (A-Z)'); return; }
+        if (c < 'A' || c > 'Z') {
+            setStatus('Clave inválida (A-Z)');
+            return;
+        }
 
         clearHighlights();
         recomputeAndRepaint();
 
         const path = buildPathForAnimation(root, c);
-        if (path.length === 0) { setStatus('Árbol vacío'); return; }
+        if (path.length === 0) {
+            setStatus('Árbol vacío');
+            setTimeout(() => {
+                alert(`La clave "${c}" no se encontró en el árbol (árbol vacío).`);
+            }, 100);
+            return;
+        }
 
         let step = 0;
         setStatus('Buscando ' + c + '...');
@@ -478,8 +500,14 @@
                 const last = path[path.length - 1];
                 if (last.target == null) {
                     setStatus('Valor no encontrado (nunca insertado)');
+                    setTimeout(() => {
+                        alert(`La clave "${c}" no se encontró en el árbol.`);
+                    }, 100);
                 } else if (!last.target.isLink && last.target.letter !== c) {
                     setStatus('Valor no encontrado (colisión o distinto)');
+                    setTimeout(() => {
+                        alert(`La clave "${c}" no se encontró en el árbol.`);
+                    }, 100);
                 } else {
                     setStatus('Búsqueda finalizada.');
                 }
@@ -489,140 +517,121 @@
     }
 
     // --- UI: botones y acciones ---
-    function setStatus(txt) { statusEl.textContent = txt; }
+    function setStatus(txt) {
+        if (statusEl) statusEl.textContent = txt;
+    }
 
-    backBtn.addEventListener('click', () => {
-        window.electronAPI.navigateTo('src/Index/index.html')
-    });
-
-    insertBtn.addEventListener('click', () => {
-        const text = inputField.value || '';
-        if (!text) { setStatus('Nada para insertar'); return; }
-        const letters = [];
-        for (const ch of text.toUpperCase()) if (ch >= 'A' && ch <= 'Z') letters.push(ch);
-        if (letters.length === 0) { setStatus('No claves validas (A-Z)'); return; }
-        for (const c of letters) insertLetterImmediate(c);
-        recomputeAndRepaint();
-        setStatus(`${letters.length} claves insertadas.`);
-    });
-
-    insertAnimBtn.addEventListener('click', () => {
-        const text = inputField.value || '';
-        if (!text) { setStatus('Nada para insertar'); return; }
-        const letters = [];
-        for (const ch of text.toUpperCase()) if (ch >= 'A' && ch <= 'Z') letters.push(ch);
-        if (letters.length === 0) { setStatus('No claves validas (A-Z)'); return; }
-
-        let idx = 0;
-        setStatus('Insertando (animado)...');
-        const seqTimer = setInterval(() => {
-            if (idx >= letters.length) {
-                clearInterval(seqTimer);
-                setStatus('Inserciones animadas completadas');
-                return;
+    // AGREGAR EVENT LISTENERS CON VERIFICACIONES
+    if (backBtn) {
+        backBtn.addEventListener('click', () => {
+            if (window.electronAPI && window.electronAPI.navigateTo) {
+                window.electronAPI.navigateTo('src/Index/index.html');
             }
-            const c = letters[idx++];
-            setStatus('Insertando: ' + c);
-            recomputeAndRepaint();
-            const path = buildPathForAnimation(root, c);
-            let step = 0;
-            if (searchTimer) { clearInterval(searchTimer); searchTimer = null; }
-            searchTimer = setInterval(() => {
-                if (step >= path.length) {
-                    insertLetterImmediate(c);
-                    clearHighlights();
-                    recomputeAndRepaint();
-                    clearInterval(searchTimer);
-                    searchTimer = null;
-                    return;
-                }
-                const ps = path[step++];
-                if (ps.target != null) setHighlightNode(ps.target);
-                else setHighlightStep(ps);
-                recomputeAndRepaint();
-            }, 300);
-        }, 700);
-    });
+        });
+    }
 
-    deleteBtn.addEventListener('click', () => {
-        const s = inputField.value || '';
-        if (!s || s.length === 0) { setStatus('Escribe la clave a eliminar en el mismo campo'); return; }
-        const c = s.toUpperCase().charAt(0);
-        if (c < 'A' || c > 'Z') { setStatus('Clave inválida'); return; }
-        const found = findLetter(root, null, c);
-        if (!found) { setStatus('Clave no encontrada'); return; }
-        if (!found.parent) { setStatus('No se puede eliminar la raíz'); return; }
-        if (found.isLeft) found.parent.left = null; else found.parent.right = null;
-        const compressed = compressNode(root);
-        if (compressed == null) {
-            root.left = null; root.right = null; root.isLink = true; root.letter = null;
-        } else if (!compressed.isLink) {
-            const sole = compressed.letter;
-            const first = codeBits(sole)[0];
-            const info = new Node(false, sole);
-            if (first === 0) root.left = info; else root.right = info;
-            root.isLink = true;
-        } else {
-            root.left = compressed.left; root.right = compressed.right; root.isLink = true;
-        }
-        clearHighlights();
-        recomputeAndRepaint();
-        setStatus('Clave ' + c + ' eliminada (si existía).');
-    });
-
-    clearBtn.addEventListener('click', () => {
-        root.left = null; root.right = null; root.isLink = true; root.letter = null;
-        clearHighlights(); recomputeAndRepaint(); setStatus('Árbol limpiado');
-    });
-
-    searchBtn.addEventListener('click', () => {
-        const s = inputField.value || '';
-        if (!s || s.length === 0) { setStatus('Nada que buscar'); return; }
-        const c = s.toUpperCase().charAt(0);
-        animateSearch(c);
-    });
-
-    saveBtn.addEventListener('click', () => {
-        const letters = [];
-        collectLetters(root, letters);
-        const txt = letters.join('\n');
-        const blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = 'residuos.res';
-        a.click();
-        URL.revokeObjectURL(a.href);
-        setStatus(`Guardado ${letters.length} claves en archivo .res`);
-    });
-
-    loadBtn.addEventListener('click', () => fileInput.click());
-    fileInput.addEventListener('change', (ev) => {
-        const f = ev.target.files[0];
-        if (!f) return;
-        if (!f.name.toLowerCase().endsWith('.res')) {
-            setStatus('Seleccione un archivo con extensión .res');
-            fileInput.value = '';
-            return;
-        }
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const text = e.target.result || '';
-            const lines = text.split(/\r?\n/);
+    if (insertBtn) {
+        insertBtn.addEventListener('click', () => {
+            const text = inputField ? inputField.value || '' : '';
+            if (!text) { setStatus('Nada para insertar'); return; }
             const letters = [];
-            for (let line of lines) {
-                line = (line || '').trim().toUpperCase();
-                if (!line) continue;
-                if (line.length === 1 && line >= 'A' && line <= 'Z') letters.push(line);
-                else { for (const ch of line) if (ch >= 'A' && ch <= 'Z') letters.push(ch); }
-            }
-            root.left = null; root.right = null; root.isLink = true; root.letter = null;
+            for (const ch of text.toUpperCase()) if (ch >= 'A' && ch <= 'Z') letters.push(ch);
+            if (letters.length === 0) { setStatus('No claves validas (A-Z)'); return; }
             for (const c of letters) insertLetterImmediate(c);
             recomputeAndRepaint();
-            setStatus(`Recuperado ${letters.length} letras desde ${f.name}`);
-        };
-        reader.readAsText(f, 'utf-8');
-        fileInput.value = '';
-    });
+            setStatus(`${letters.length} claves insertadas.`);
+        });
+    }
+
+    if (deleteBtn) {
+        deleteBtn.addEventListener('click', () => {
+            const s = inputField ? inputField.value || '' : '';
+            if (!s || s.length === 0) { setStatus('Escribe la clave a eliminar en el mismo campo'); return; }
+            const c = s.toUpperCase().charAt(0);
+            if (c < 'A' || c > 'Z') { setStatus('Clave inválida'); return; }
+            const found = findLetter(root, null, c);
+            if (!found) { setStatus('Clave no encontrada'); return; }
+            if (!found.parent) { setStatus('No se puede eliminar la raíz'); return; }
+            if (found.isLeft) found.parent.left = null; else found.parent.right = null;
+            const compressed = compressNode(root);
+            if (compressed == null) {
+                root.left = null; root.right = null; root.isLink = true; root.letter = null;
+            } else if (!compressed.isLink) {
+                const sole = compressed.letter;
+                const first = codeBits(sole)[0];
+                const info = new Node(false, sole);
+                if (first === 0) root.left = info; else root.right = info;
+                root.isLink = true;
+            } else {
+                root.left = compressed.left; root.right = compressed.right; root.isLink = true;
+            }
+            clearHighlights();
+            recomputeAndRepaint();
+            setStatus('Clave ' + c + ' eliminada (si existía).');
+        });
+    }
+
+    if (clearBtn) {
+        clearBtn.addEventListener('click', () => {
+            root.left = null; root.right = null; root.isLink = true; root.letter = null;
+            clearHighlights(); recomputeAndRepaint(); setStatus('Árbol limpiado');
+        });
+    }
+
+    if (searchBtn) {
+        searchBtn.addEventListener('click', () => {
+            const s = inputField ? inputField.value || '' : '';
+            if (!s || s.length === 0) { setStatus('Nada que buscar'); return; }
+            const c = s.toUpperCase().charAt(0);
+            animateSearch(c);
+        });
+    }
+
+    if (saveBtn) {
+        saveBtn.addEventListener('click', () => {
+            const letters = [];
+            collectLetters(root, letters);
+            const txt = letters.join('\n');
+            const blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'residuos.res';
+            a.click();
+            URL.revokeObjectURL(a.href);
+            setStatus(`Guardado ${letters.length} claves en archivo .res`);
+        });
+    }
+
+    if (loadBtn && fileInput) {
+        loadBtn.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', (ev) => {
+            const f = ev.target.files[0];
+            if (!f) return;
+            if (!f.name.toLowerCase().endsWith('.res')) {
+                setStatus('Seleccione un archivo con extensión .res');
+                fileInput.value = '';
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const text = e.target.result || '';
+                const lines = text.split(/\r?\n/);
+                const letters = [];
+                for (let line of lines) {
+                    line = (line || '').trim().toUpperCase();
+                    if (!line) continue;
+                    if (line.length === 1 && line >= 'A' && line <= 'Z') letters.push(line);
+                    else { for (const ch of line) if (ch >= 'A' && ch <= 'Z') letters.push(ch); }
+                }
+                root.left = null; root.right = null; root.isLink = true; root.letter = null;
+                for (const c of letters) insertLetterImmediate(c);
+                recomputeAndRepaint();
+                setStatus(`Recuperado ${letters.length} claves desde ${f.name}`);
+            };
+            reader.readAsText(f, 'utf-8');
+            fileInput.value = '';
+        });
+    }
 
     // Inicialización
     recomputeAndRepaint();

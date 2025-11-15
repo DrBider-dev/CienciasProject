@@ -62,8 +62,8 @@ function resizeCanvas() {
 function drawTree(root) {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   if (!root) {
-    ctx.fillStyle = "#9aa3a8";
-    ctx.font = "16px sans-serif";
+    ctx.fillStyle = "#666666"; // Gris oscuro del tema retro
+    ctx.font = "16px Tahoma, sans-serif"; // Fuente retro
     ctx.fillText("Árbol vacío. Inserta texto para empezar.", 20, 30);
     document.getElementById("infoText").textContent = "Árbol vacío — Inserta texto para empezar.";
     return;
@@ -106,7 +106,7 @@ function assignPositions(node, depth, curX, gap) {
 
 function drawEdges(node, total) {
   if (!node) return;
-  ctx.strokeStyle = "rgba(124, 212, 187, 0.5)"; // Verde menta con transparencia
+  ctx.strokeStyle = "#a0a0a0"; // Gris para bordes (tema retro)
   ctx.lineWidth = 2;
   if (node.left) {
     ctx.beginPath();
@@ -137,20 +137,20 @@ function drawEdgeLabel(parent, child, total) {
   const tx = mx + ux * offset;
   const ty = my + uy * offset;
 
-  ctx.font = "bold 12px Arial";
+  ctx.font = "bold 12px Tahoma, sans-serif"; // Fuente retro
   const tw = ctx.measureText(label).width;
   
-  // Fondo oscuro para la etiqueta
-  ctx.fillStyle = "rgba(23, 25, 27, 0.9)";
+  // Fondo estilo panel retro para la etiqueta
+  ctx.fillStyle = "#f8f8f8"; // Color de fondo del tema
   ctx.fillRect(tx - tw/2 - 4, ty - 10, tw + 8, 14);
   
-  // Borde verde menta
-  ctx.strokeStyle = "#7cd4bb";
+  // Borde gris estilo retro
+  ctx.strokeStyle = "#c0c0c0";
   ctx.lineWidth = 1;
   ctx.strokeRect(tx - tw/2 - 4, ty - 10, tw + 8, 14);
   
-  // Texto en verde menta
-  ctx.fillStyle = "#7cd4bb";
+  // Texto en gris oscuro
+  ctx.fillStyle = "#000000";
   ctx.fillText(label, tx - tw/2, ty);
 }
 
@@ -158,28 +158,45 @@ function drawNodes(node) {
   if (!node) return;
   const r = 24;
   
-  // Fondo oscuro del nodo
-  ctx.fillStyle = "rgba(23, 25, 27, 0.9)";
+  // Fondo del nodo con efecto de relieve
+  const gradient = ctx.createRadialGradient(
+    node.x - 3, node.y - 3, 5, 
+    node.x, node.y, r
+  );
+  gradient.addColorStop(0, "#f8f8f8"); // Color claro
+  gradient.addColorStop(1, "#e8e8e8"); // Color oscuro para efecto 3D
+  
+  ctx.fillStyle = gradient;
   ctx.beginPath();
   ctx.arc(node.x, node.y, r, 0, 2*Math.PI);
   ctx.fill();
   
-  // Borde verde menta
-  ctx.lineWidth = 3;
-  ctx.strokeStyle = "#7cd4bb";
+  // Borde biselado estilo retro
+  ctx.lineWidth = 2;
+  
+  // Borde exterior claro (efecto de luz)
+  ctx.strokeStyle = "#ffffff";
+  ctx.beginPath();
+  ctx.arc(node.x, node.y, r, 0, 2*Math.PI);
+  ctx.stroke();
+  
+  // Borde interior oscuro (efecto de sombra)
+  ctx.strokeStyle = "#a0a0a0";
+  ctx.beginPath();
+  ctx.arc(node.x, node.y, r - 1, 0, 2*Math.PI);
   ctx.stroke();
 
   if (node.isLeaf()) {
-    // Texto de caracteres en verde menta
-    ctx.fillStyle = "#7cd4bb";
-    ctx.font = "bold 16px Arial";
+    // Texto de caracteres en negro
+    ctx.fillStyle = "#000000";
+    ctx.font = "bold 16px Tahoma, sans-serif"; // Fuente retro
     const text = node.ch;
     const tw = ctx.measureText(text).width;
     ctx.fillText(text, node.x - tw/2, node.y + 5);
   } else {
     // Para nodos internos, mostrar la frecuencia
-    ctx.fillStyle = "#9aa3a8";
-    ctx.font = "12px Arial";
+    ctx.fillStyle = "#666666"; // Gris oscuro
+    ctx.font = "bold 12px Tahoma, sans-serif"; // Fuente retro
     const text = node.count.toString();
     const tw = ctx.measureText(text).width;
     ctx.fillText(text, node.x - tw/2, node.y + 4);

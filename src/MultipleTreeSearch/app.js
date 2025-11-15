@@ -17,15 +17,15 @@ document.addEventListener('DOMContentLoaded', () => {
   const volverBtn = document.getElementById('volverBtn');
   const keysListEl = document.getElementById('keysList');
 
-  // appearance
-  const ACCENT = getComputedStyle(document.documentElement).getPropertyValue('--accent') || '#7cd4bb';
-  const ACCENT_BORDER = 'rgba(124,212,187,0.22)';
-  const TEXT_ACCENT = '#e9fff6';
-  const EDGE_COLOR = 'rgba(200,200,200,0.22)';
-  const HIGHLIGHT_COLOR = 'rgba(124,212,187,0.26)';
-  const NODE_FILL = 'rgba(255,255,255,0.03)';
-  const NODE_STROKE = 'rgba(124,212,187,0.8)';
-  const LETTER_COLOR = '#dff7f0';
+  // appearance - MODIFICADO PARA TEMA RETRO
+  const ACCENT = '#716F6F'; // Gris del tema retro
+  const ACCENT_BORDER = 'rgba(113, 111, 111, 0.4)'; // Gris semitransparente
+  const TEXT_ACCENT = '#000000'; // Texto negro para contraste
+  const EDGE_COLOR = '#a0a0a0'; // Gris para bordes
+  const HIGHLIGHT_COLOR = 'rgba(113, 111, 111, 0.3)'; // Resaltado sutil
+  const NODE_FILL = '#f8f8f8'; // Fondo blanco roto como los paneles
+  const NODE_STROKE = '#716F6F'; // Borde gris
+  const LETTER_COLOR = '#000000'; // Letras negras
   const insertionOrder = []; // array of {char, bitsStr}
 
   class TrieNode {
@@ -234,8 +234,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // label edge with bit value depending on level/idx (same mapping used earlier)
         const label = this.edgeLabelFor(node.level, i);
-        ctx.fillStyle = ACCENT_BORDER;
-        ctx.font = '12px sans-serif';
+        ctx.fillStyle = '#666666'; // Gris oscuro para etiquetas
+        ctx.font = '12px Tahoma, sans-serif'; // Fuente retro
         const mx = (p.x + pc.x) / 2;
         const my = (p.y + 22 + pc.y - 22) / 2 - 6;
         ctx.fillText(label, mx - 6, my);
@@ -255,21 +255,40 @@ document.addEventListener('DOMContentLoaded', () => {
     drawNodes: function () {
       for (const [node, p] of this.positions.entries()) {
         const isHighlighted = this.highlight.has(node);
-        // ring
+        
+        // Nodo con efecto de relieve
         ctx.beginPath();
         ctx.arc(p.x, p.y, 26, 0, Math.PI * 2);
-        ctx.fillStyle = isHighlighted ? HIGHLIGHT_COLOR : NODE_FILL;
+        
+        // Fondo del nodo con gradiente para efecto 3D
+        const gradient = ctx.createRadialGradient(p.x-3, p.y-3, 5, p.x, p.y, 26);
+        gradient.addColorStop(0, isHighlighted ? '#e0e0e0' : '#f8f8f8');
+        gradient.addColorStop(1, isHighlighted ? '#c8c8c8' : '#e8e8e8');
+        ctx.fillStyle = gradient;
         ctx.fill();
 
-        // outer stroke
-        ctx.lineWidth = isHighlighted ? 3 : 2;
-        ctx.strokeStyle = NODE_STROKE;
+        // Borde con efecto de relieve
+        ctx.lineWidth = 2;
+        if (isHighlighted) {
+          ctx.strokeStyle = '#000000'; // Borde negro para resaltado
+          ctx.lineWidth = 3;
+        } else {
+          // Efecto de borde biselado
+          ctx.strokeStyle = '#ffffff';
+          ctx.setLineDash([]);
+          ctx.stroke();
+          
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, 26, 0, Math.PI * 2);
+          ctx.strokeStyle = '#a0a0a0';
+          ctx.stroke();
+        }
         ctx.stroke();
 
         // letter if any
         if (node.letter && node.letter !== '\0') {
           ctx.fillStyle = LETTER_COLOR;
-          ctx.font = 'bold 18px sans-serif';
+          ctx.font = 'bold 18px Tahoma, sans-serif'; // Fuente retro
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
           ctx.fillText(node.letter, p.x, p.y);
@@ -336,14 +355,6 @@ document.addEventListener('DOMContentLoaded', () => {
   window.addEventListener('resize', resizeCanvas);
   resizeCanvas();
 
-  // --- Trie node identical logic as previous translation ---
-
-
-  // keep insertion order list (exactly as insertString in Java would insert characters sequentially)
-  
-
-
-
   // helpers: update insertion order list UI
   function bitsStringFor(ch) {
     const code = panel.charToCode(ch);
@@ -358,10 +369,15 @@ document.addEventListener('DOMContentLoaded', () => {
     for (let i = 0; i < insertionOrder.length; i++) {
       const it = insertionOrder[i];
       const row = document.createElement('div');
-      row.className = 'key-row';
-      const left = document.createElement('div'); left.className = 'key-left'; left.textContent = it.char;
-      const right = document.createElement('div'); right.className = 'key-right'; right.textContent = it.bits;
-      row.appendChild(left); row.appendChild(right);
+      row.className = 'letter-list-item';
+      const left = document.createElement('span'); 
+      left.className = 'letter-char'; 
+      left.textContent = it.char;
+      const right = document.createElement('span'); 
+      right.className = 'letter-bits'; 
+      right.textContent = " → " + it.bits;
+      row.appendChild(left); 
+      row.appendChild(right);
       keysListEl.appendChild(row);
     }
   }

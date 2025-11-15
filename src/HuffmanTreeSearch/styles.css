@@ -1,26 +1,44 @@
 :root {
-  --bg: #0f1113;
-  --panel: #121416;
-  --muted: #9aa3a8;
-  --accent: #7cd4bb;
-  --card: #17191b;
-  --danger: #d25f5f;
-  --glass: rgba(255,255,255,0.03);
+  --accent: #716F6F;
+  --bg: #ece9d8;
+  --panel: #f0f0f0;
+  --muted: #666666;
+  --card: #f8f8f8;
+  --danger: #c86464;
+  --glass: rgba(0,0,0,0.05);
   --cell-w: 120px;
   --cell-h: 90px;
+  --border: #c0c0c0;
 }
 
 * {
   box-sizing: border-box;
-  font-family: Inter, "Segoe UI", Roboto, system-ui, Arial, sans-serif;
+  font-family: "Tahoma", "Segoe UI", Arial, sans-serif;
 }
 
 html, body {
   height: 100%;
   margin: 0;
-  background: linear-gradient(180deg, var(--bg), #071014);
-  color: #e6eef0;
-  overflow: hidden;
+  background: #ece9d8;
+  color: #000000;
+  background-image: none;
+}
+
+/* Fondo estilo XP */
+.background-decoration {
+  background: linear-gradient(45deg, #d4d0c8 25%, transparent 25%), 
+              linear-gradient(-45deg, #d4d0c8 25%, transparent 25%), 
+              linear-gradient(45deg, transparent 75%, #d4d0c8 75%), 
+              linear-gradient(-45deg, transparent 75%, #d4d0c8 75%);
+  background-size: 20px 20px;
+  background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+  opacity: 0.3;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
 }
 
 .topbar {
@@ -29,8 +47,8 @@ html, body {
   align-items: center;
   justify-content: space-between;
   padding: 0 24px;
-  border-bottom: 1px solid rgba(255,255,255,0.03);
-  background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent);
+  border-bottom: 2px outset var(--border);
+  background: linear-gradient(to bottom, #f8f8f8, #e8e8e8);
 }
 
 .brand {
@@ -50,52 +68,43 @@ html, body {
 }
 
 .link {
-  background: none;
-  border: none;
-  color: var(--muted);
+  background: linear-gradient(to bottom, #f0f0f0, #d4d0c8);
+  border: 2px outset var(--border);
+  color: #000000;
   cursor: pointer;
   font-size: 16px;
-  padding: 6px;
+  padding: 6px 12px;
+  border-radius: 3px;
+  font-family: "Tahoma", sans-serif;
 }
 .link:hover {
-  color: var(--accent);
+  background: linear-gradient(to bottom, #e8e8e8, #ccc8c0);
+}
+.link:active {
+  border: 2px inset var(--border);
 }
 
-/* Layout principal */
 .container {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 24px;
+  padding: 20px 24px 28px;
   height: calc(100vh - 84px);
   gap: 20px;
 }
 
-/* Panel visual */
-.visual {
-  background: var(--card);
-  padding: 18px;
-  border-radius: 12px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  flex: 1;
-  border: 1px solid rgba(255,255,255,0.02);
-}
-
-/* Controles */
+/* Controles arriba */
 .controls {
   background: var(--panel);
   padding: 18px 24px;
-  border-radius: 12px;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.6);
-  border: 1px solid rgba(255,255,255,0.02);
+  border-radius: 4px;
+  border: 2px outset var(--border);
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   align-items: center;
   gap: 12px;
+  box-shadow: 1px 1px 3px rgba(0,0,0,0.2);
 }
 
 .form-row {
@@ -110,87 +119,109 @@ html, body {
 .form-row input[type="number"],
 .form-row input[type="text"] {
   padding: 8px 10px;
-  border-radius: 8px;
-  border: 1px solid rgba(255,255,255,0.04);
-  background: var(--glass);
-  color: #e8f5ef;
-  width: 100px;
+  border-radius: 3px;
+  border: 2px inset var(--border);
+  background: #ffffff;
+  color: #000000;
+  width: 260px;
+  font-family: "Tahoma", sans-serif;
 }
 
 .btn {
-  background: var(--accent);
-  border: none;
-  color: #0a0a0a;
+  background: linear-gradient(to bottom, #f0f0f0, #d4d0c8);
+  border: 2px outset var(--border);
+  color: #000000;
   padding: 8px 12px;
-  border-radius: 10px;
+  border-radius: 3px;
   cursor: pointer;
-  font-weight: 600;
-  transition: all 0.2s ease;
+  font-weight: normal;
+  font-family: "Tahoma", sans-serif;
+  box-shadow: 1px 1px 0px #ffffff, inset 1px 1px 0px #ffffff;
 }
 .btn:hover {
-  filter: brightness(0.95);
-  transform: translateY(-1px);
+  background: linear-gradient(to bottom, #e8e8e8, #ccc8c0);
+}
+.btn:active {
+  border: 2px inset var(--border);
 }
 .btn.outline {
-  background: transparent;
-  border: 1px solid var(--accent);
+  background: linear-gradient(to bottom, #f8f8f8, #e8e8e8);
+  border: 2px outset var(--border);
+  color: var(--muted);
+}
+
+/* Estilos específicos para el árbol digital */
+.tree-container {
+  background: var(--card);
+  border-radius: 4px;
+  border: 2px outset var(--border);
+  box-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+  width: 100%;
+  height: 520px;
+  overflow: hidden;
+  position: relative;
+}
+.tree-canvas {
+  display: block;
+  background: var(--card);
+  max-width: none;
+  max-height: none;
+}
+.status {
+  color: var(--muted);
+  font-size: 13px;
+  width:100%;
+  text-align:center;
+  margin-top:6px;
+}
+.letter-list {
+  background: var(--card);
+  border-radius: 4px;
+  padding: 10px;
+  height: 200px;
+  overflow-y: auto;
+  border: 2px inset var(--border);
+  box-shadow: 1px 1px 0px #ffffff, inset 1px 1px 0px #ffffff;
+}
+.letter-list-item {
+  padding: 4px 8px;
+  border-bottom: 1px solid rgba(0,0,0,0.1);
+  font-family: "Tahoma", monospace;
+}
+.letter-list-title {
   color: var(--accent);
-}
-
-/* Para el árbol de Huffman */
-.cells-wrap {
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 10px;
-  width: 100%;
-  max-width: 100%;
-  padding: 12px;
-}
-
-.cell {
-  width: var(--cell-w);
-  height: var(--cell-h);
-  background: linear-gradient(180deg, rgba(255,255,255,0.012), transparent);
-  border-radius: 10px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 6px 12px rgba(0,0,0,0.6);
-  border: 1px solid rgba(255,255,255,0.02);
-  transition: box-shadow .18s, transform .12s;
-  color: #dff7f0;
-}
-.cell .idx {
-  font-size: 12px;
-  color: var(--muted);
-  margin-bottom: 6px;
-}
-.cell .val {
-  font-size: 22px;
-  font-weight: 700;
-}
-.cell.empty .val {
-  color: rgba(255,255,255,0.25);
-}
-.cell.highlight-found {
-  box-shadow: 0 10px 26px rgba(124,212,187,0.12);
-  border: 2px solid rgba(124,212,187,0.25);
-  transform: translateY(-4px);
-}
-.cell.highlight-discard {
-  box-shadow: 0 10px 26px rgba(210,95,95,0.12);
-  border: 2px solid rgba(210,95,95,0.22);
-  transform: translateY(-2px);
-}
-
-.notes {
-  width: 100%;
+  font-weight: bold;
+  margin-bottom: 8px;
   text-align: center;
-  color: var(--muted);
-  font-size: 12px;
-  margin-top: 8px;
+}
+.split-container {
+  display: flex;
+  gap: 20px;
+  height: 540px;
+}
+.tree-panel {
+  flex: 3;
+}
+.info-panel {
+  flex: 1;
+  background: var(--panel);
+  border-radius: 4px;
+  padding: 15px;
+  border: 2px outset var(--border);
+  box-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+}
+.search-highlight {
+  animation: pulse 1.5s infinite;
+}
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+/* Estilos adicionales para el efecto retro */
+.card, .btn, .tree-container, .controls, .topbar, .info-panel {
+  box-shadow: 1px 1px 0px #ffffff, inset 1px 1px 0px #ffffff;
 }
 
 @media (max-width: 900px) {
@@ -201,24 +232,4 @@ html, body {
     --cell-w: 96px;
     --cell-h: 82px;
   }
-}
-
-/* Estilos para scrollbars cuando aparecen */
-.tree-container::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-.tree-container::-webkit-scrollbar-track {
-  background: rgba(255,255,255,0.05);
-  border-radius: 4px;
-}
-
-.tree-container::-webkit-scrollbar-thumb {
-  background: var(--accent);
-  border-radius: 4px;
-}
-
-.tree-container::-webkit-scrollbar-thumb:hover {
-  background: #5bc4a8;
 }

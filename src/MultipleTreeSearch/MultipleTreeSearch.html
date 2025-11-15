@@ -5,10 +5,12 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Árbol Digital — Visualizador</title>
 
-  <!-- Usa el mismo styles.css (tema oscuro) -->
+  <!-- Usa el mismo styles.css (tema retro) -->
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+  <div class="background-decoration"></div>
+  
   <div class="topbar">
     <div class="brand">
       <div class="logo-text">Árbol Digital</div>
@@ -19,39 +21,36 @@
     </div>
   </div>
 
-  <div class="page">
-    <!-- Controles superiores (estilo a lo largo del ancho) -->
-    <div class="controls-bar">
-      <div class="controls-left">
-        <label class="label-inline">Clave:</label>
-        <input id="inputField" class="text-input" type="text" placeholder="Ej. A o ABC"/>
+  <div class="container">
+    <!-- Controles superiores -->
+    <div class="controls">
+      <div class="form-row">
+        <label>Clave:</label>
+        <input id="inputField" type="text" placeholder="Ej. A o ABC"/>
       </div>
-
-      <div class="controls-right">
-        <button id="insertBtn" class="btn">Insertar</button>
-        <button id="searchBtn" class="btn">Buscar</button>
-        <button id="deleteBtn" class="btn">Eliminar</button>
-        <button id="clearBtn" class="btn">Limpiar</button>
-        <button id="saveBtn" class="btn outline">Guardar</button>
-        <button id="loadBtn" class="btn outline">Recuperar</button>
-        <input id="fileInput" type="file" accept=".mul,.json" style="display:none;">
-      </div>
+      <button id="insertBtn" class="btn">Insertar</button>
+      <button id="searchBtn" class="btn">Buscar</button>
+      <button id="deleteBtn" class="btn">Eliminar</button>
+      <button id="clearBtn" class="btn">Limpiar</button>
+      <button id="saveBtn" class="btn outline">Guardar</button>
+      <button id="loadBtn" class="btn outline">Recuperar</button>
+      <input id="fileInput" type="file" accept=".mul,.json" style="display:none;">
     </div>
 
-    <!-- Main content: left canvas, right sidebar -->
-    <div class="content">
-      <div class="canvas-panel">
-        <canvas id="treeCanvas"></canvas>
-      </div>
-
-      <aside class="sidebar">
-        <div class="card">
-          <div class="card-title">Claves (orden de inserción):</div>
-          <div id="keysList" class="keys-list">
-            <!-- se rellena por JS -->
-          </div>
+    <!-- Panel dividido: árbol a la izquierda, información a la derecha -->
+    <div class="split-container">
+      <div class="tree-panel">
+        <div class="tree-container">
+          <canvas id="treeCanvas" class="tree-canvas"></canvas>
         </div>
-      </aside>
+        <div class="status">Árbol digital de búsqueda</div>
+      </div>
+      <div class="info-panel">
+        <div class="letter-list-title">Claves (orden de inserción):</div>
+        <div id="keysList" class="letter-list">
+          <!-- se rellena por JS -->
+        </div>
+      </div>
     </div>
   </div>
 
