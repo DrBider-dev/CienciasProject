@@ -8,7 +8,9 @@ const dinamicoTexts = {
   huffmanTreeLabel: "Árboles Huffman<br>Estructura usada en compresión que organiza símbolos por frecuencia, optimizando el código de longitud variable.",
   linealSearchEX: "Búsqueda Lineal (Externa)<br>Búsqueda en estructuras por bloques secuencialmente, útil para datos en almacenamiento externo.",
   binarySearchEX: "Búsqueda Binaria (Externa)<br>Versión adaptada a bloques externos, aplicando dividir y conquistar sobre índices o bloques.",
-  dinamicSearchEX: "Búsqueda Dinámica<br>Diseñada para estructuras que cambian en tiempo real, ajustando los índices dinámicamente."
+  dinamicSearchEX: "Búsqueda Dinámica<br>Diseñada para estructuras que cambian en tiempo real, ajustando los índices dinámicamente.",
+  graphOperations: "Operaciones con Grafos<br>Manipulación y análisis de grafos, incluyendo combinaciones como el producto cartesiano de grafos.",
+  shortestPath: "Camino Más Corto<br>Algoritmos para encontrar la ruta más corta entre nodos en un grafo, como Dijkstra o Floyd."
 };
 
 const dinamicoArea = document.getElementById("dinamicoArea");
@@ -44,7 +46,9 @@ function openWindowFor(id) {
     dinamicSearchLabel: "src/DinamicSearch/DinamicSearch.html",
     linealSearchEX: "src/LinealSearchEX/linealSearchEX.html",
     binarySearchEX: "src/BinarySearchEX/binarySearchEX.html",
-    dinamicSearchEX: "src/DinamicSearchEX/dinamicSearchEX.html"
+    dinamicSearchEX: "src/DinamicSearchEX/dinamicSearchEX.html",
+    graphOperations: "src/GraphOperations/GraphOperations.html",
+    shortestPath: "src/ShortestPath/ShortestPath.html"
   };
 
   const url = map[id];
@@ -57,7 +61,7 @@ function openWindowFor(id) {
 }
 
 
-const cards = [document.getElementById("card-1"), document.getElementById("card-2"), document.getElementById("card-3")];
+const cards = [document.getElementById("card-1"), document.getElementById("card-2"), document.getElementById("card-3"), document.getElementById("card-4")];
 let current = 0;
 function showCard(i) {
   cards.forEach((c, idx) => c.style.display = idx === i ? "block" : "none");
@@ -66,8 +70,10 @@ function showCard(i) {
 
 document.getElementById("next1").onclick = () => showCard(1);
 document.getElementById("next2").onclick = () => showCard(2);
+document.getElementById("next3").onclick = () => showCard(3);
 document.getElementById("prev1").onclick = () => showCard(0);
 document.getElementById("prev2").onclick = () => showCard(0);
 document.getElementById("prev3").onclick = () => showCard(1);
+document.getElementById("prev4").onclick = () => showCard(2);
 
 document.addEventListener("keydown", e => { if (e.key === "Escape") hideDinamico(); });

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Algoritmos de Camino Mínimo</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="topbar">
+    <div class="brand">
+      <div class="logo-text">Caminos Más Cortos</div>
+      <div class="subtitle">Bellman · Dijkstra · Floyd</div>
+    </div>
+    <div>
+      <button class="link" id="backBtn">‹ Volver</button>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="controls">
+      <div class="form-row">
+        <label>Vértices:</label>
+        <input id="verticesInput" type="text" placeholder="Ej: A,B,C,D" />
+      </div>
+
+      <div class="form-row">
+        <label>Aristas (dir):</label>
+        <input id="edgesInput" type="text" placeholder="Ej: A-B:3,B-C:2,C-D:1" />
+      </div>
+
+      <div class="form-row">
+        <label>Nodo inicial (para Bellman/Dijkstra):</label>
+        <input id="startNode" type="text" placeholder="Ej: A" />
+      </div>
+
+      <div class="form-row">
+        <label>Velocidad (ms pausa):</label>
+        <input id="delayInput" type="number" value="600" min="50" step="50" />
+      </div>
+
+      <div class="buttons">
+        <button class="btn" id="runBellman">Bellman-Ford</button>
+        <button class="btn" id="runDijkstra">Dijkstra</button>
+        <button class="btn" id="runFloyd">Floyd-Warshall</button>
+        <button class="btn outline" id="drawBtn">Redibujar</button>
+        <button class="btn outline" id="resetBtn">Limpiar Log</button>
+      </div>
+    </div>
+
+    <div class="main-area">
+      <div class="graph-panel">
+        <canvas id="graphCanvas"></canvas>
+      </div>
+
+      <div class="info-panel">
+        <div class="info-section">
+          <div class="section-title">Estado</div>
+          <div id="distancesDisplay" class="distances"></div>
+        </div>
+
+        <div class="info-section">
+          <div class="section-title">Matriz (Floyd)</div>
+          <pre id="matrixDisplay" class="matrix">—</pre>
+        </div>
+
+        <div class="info-section">
+          <div class="section-title">Log</div>
+          <div id="log" class="log"></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
