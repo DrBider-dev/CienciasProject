@@ -14,8 +14,16 @@ let longitudClavesSqr = null;
 let longitudClavesFold = null;
 let longitudClavesTrunk = null;
 
+let collisionMod = 'linear';
+let collisionSqr = 'linear';
+let collisionFold = 'linear';
+let collisionTrunk = 'linear';
+
+const DELETED = '[[DELETED]]';
+
 const cellsWrap = document.getElementById('cellsWrap');
 const hashSelect = document.getElementById('hashSelect');
+const collisionSelect = document.getElementById('collisionSelect');
 const sizeArray = document.getElementById('sizeArray');
 const sizeKey = document.getElementById('sizeKey');
 const keyInput = document.getElementById('keyInput');
@@ -53,7 +61,7 @@ function refreshCellsUI() {
     const txt = document.createElement('div');
     txt.style.color = 'var(--muted)';
     txt.style.padding = '24px';
-    txt.textContent = 'No hay estructura: crea un arreglo para comenzar.';
+    txt.textContent = 'No hay estructura: crea para comenzar.';
     cellsWrap.appendChild(txt);
     return;
   }
@@ -71,7 +79,22 @@ function createSpacer(w = 8) {
 
 function createCell(position, value) {
   const el = document.createElement('div');
-  el.className = 'cell' + (value == null ? ' empty' : '');
+  let displayVal = '';
+  let isEmpty = false;
+
+  if (value == null) {
+    isEmpty = true;
+  } else if (value === DELETED) {
+    displayVal = 'X'; // Deleted marker
+  } else if (Array.isArray(value)) {
+    // Chaining / Nested
+    if (value.length === 0) isEmpty = true;
+    else displayVal = value.join(', ');
+  } else {
+    displayVal = value;
+  }
+
+  el.className = 'cell' + (isEmpty ? ' empty' : '');
   el.dataset.pos = position - 1;
 
   const idx = document.createElement('div');
@@ -80,7 +103,7 @@ function createCell(position, value) {
 
   const val = document.createElement('div');
   val.className = 'val';
-  val.textContent = value == null ? '' : value;
+  val.textContent = displayVal;
 
   el.appendChild(idx);
   el.appendChild(val);
@@ -99,7 +122,7 @@ function scrollCellToVisible(index) {
   const rect = cell.getBoundingClientRect();
   const parentRect = cellsWrap.parentElement.getBoundingClientRect();
   // Simple scroll: bring into view horizontally/vertically by centering
-  cell.scrollIntoView({behavior: 'smooth', block: 'center', inline: 'center'});
+  cell.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
 }
 
 function getCellElement(index) {
@@ -162,28 +185,151 @@ function foldingHash(clave, tamañoArreglo) {
 
 /* ---------------------- OPERACIONES (Crear / Insertar / Buscar / Eliminar) ---------------------- */
 
+/* ---------------------- COLLISION LOGIC ---------------------- */
+
+function getSecondaryHash(key, size) {
+  // h2(k) = 1 + (k % (size - 1))
+  // Ensure size > 1
+  if (size <= 1) return 1;
+  return 1 + (key % (size - 1));
+}
+
+function performInsert(array, key, startIdx, strategy) {
+  const n = array.length;
+
+  if (strategy === 'chaining' || strategy === 'nested') {
+    // Buckets
+    if (array[startIdx] == null) {
+      array[startIdx] = [key];
+      return { success: true };
+    } else if (Array.isArray(array[startIdx])) {
+      if (array[startIdx].includes(key)) {
+        return { success: false };
+      }
+      array[startIdx].push(key);
+      return { success: true };
+    } else {
+      // Should not happen if consistent
+      return { success: false, msg: 'No se pudo insertar' };
+    }
+  }
+
+  // Probing
+  let idx = startIdx;
+  let h2 = (strategy === 'double') ? getSecondaryHash(key, n) : 0;
+
+  for (let i = 0; i < n; i++) {
+    if (strategy === 'linear') {
+      idx = (startIdx + i) % n;
+    } else if (strategy === 'quadratic') {
+      idx = (startIdx + i * i) % n;
+    } else if (strategy === 'double') {
+      idx = (startIdx + i * h2) % n;
+    }
+
+    if (array[idx] == null || array[idx] === DELETED) {
+      array[idx] = key;
+      return { success: true };
+    } else if (array[idx] === key) {
+      return { success: false };
+    }
+  }
+  return { success: false };
+}
+
+function performSearch(array, key, startIdx, strategy) {
+  const n = array.length;
+  const steps = [];
+  let foundIndex = -1;
+
+  if (strategy === 'chaining' || strategy === 'nested') {
+    steps.push(startIdx);
+    if (array[startIdx] && Array.isArray(array[startIdx]) && array[startIdx].includes(key)) {
+      foundIndex = startIdx;
+    }
+    return { steps, foundIndex };
+  }
+
+  // Probing
+  let idx = startIdx;
+  let h2 = (strategy === 'double') ? getSecondaryHash(key, n) : 0;
+
+  for (let i = 0; i < n; i++) {
+    if (strategy === 'linear') {
+      idx = (startIdx + i) % n;
+    } else if (strategy === 'quadratic') {
+      idx = (startIdx + i * i) % n;
+    } else if (strategy === 'double') {
+      idx = (startIdx + i * h2) % n;
+    }
+
+    steps.push(idx);
+    if (array[idx] === key) {
+      foundIndex = idx;
+      break;
+    }
+    if (array[idx] == null) {
+      // Empty slot found, stop
+      break;
+    }
+    // If DELETED, continue
+  }
+  return { steps, foundIndex };
+}
+
+function performDelete(array, key, startIdx, strategy) {
+  const n = array.length;
+
+  if (strategy === 'chaining' || strategy === 'nested') {
+    if (array[startIdx] && Array.isArray(array[startIdx])) {
+      const bucket = array[startIdx];
+      const idxInBucket = bucket.indexOf(key);
+      if (idxInBucket !== -1) {
+        bucket.splice(idxInBucket, 1);
+        if (bucket.length === 0) array[startIdx] = null; // Optional: cleanup
+        return { success: true, msg: 'Eliminado de lista en ' + (startIdx + 1), steps: [startIdx], foundIndex: startIdx };
+      }
+    }
+    return { success: false, msg: 'No encontrado', steps: [startIdx], foundIndex: -1 };
+  }
+
+  // Probing
+  const { steps, foundIndex } = performSearch(array, key, startIdx, strategy);
+  if (foundIndex !== -1) {
+    array[foundIndex] = DELETED;
+    return { success: true, msg: 'Eliminado de posición ' + (foundIndex + 1), steps, foundIndex };
+  }
+  return { success: false, msg: 'No encontrado', steps, foundIndex: -1 };
+}
+
 function onCreateArray() {
   try {
     const selected = hashSelect.value;
     const size = Math.max(1, parseInt(sizeArray.value.trim(), 10));
     const keyLen = Math.max(1, parseInt(sizeKey.value.trim(), 10));
 
+    const collision = collisionSelect.value;
+
     switch (selected) {
       case 'H. Mod':
         arrayMod = new Array(size).fill(null);
         longitudClavesMod = keyLen;
+        collisionMod = collision;
         break;
       case 'H. Cuadrado':
         arraySqr = new Array(size).fill(null);
         longitudClavesSqr = keyLen;
+        collisionSqr = collision;
         break;
       case 'H. Plegamiento':
         arrayFold = new Array(size).fill(null);
         longitudClavesFold = keyLen;
+        collisionFold = collision;
         break;
       case 'H. Truncamiento':
         arrayTrunk = new Array(size).fill(null);
         longitudClavesTrunk = keyLen;
+        collisionTrunk = collision;
         break;
     }
     refreshCellsUI();
@@ -198,93 +344,46 @@ function onInsert() {
     const input = keyInput.value.trim();
     const key = parseInt(input, 10);
 
+    let arr, len, col, idx;
+
     switch (metodoActual) {
-      case 'H. Mod': {
-        if (!arrayMod) { alert('Por Favor cree la Estructura para ' + metodoActual); return; }
-        if (longitudClavesMod == null) { alert('Longitud no definida'); return; }
-        if (input.length !== longitudClavesMod) { alert('Todas las claves deben tener ' + longitudClavesMod + ' dígitos'); return; }
-
-        const n = arrayMod.length;
-        const index = modHash(key, n);
-
-        if (arrayMod[index] != null && arrayMod[index] === key) {
-          alert('La clave ' + key + ' ya existe en la tabla de ' + metodoActual);
-          return;
-        } else if (arrayMod[index] == null) {
-          arrayMod[index] = key;
-          refreshCellsUI();
-          alert('Clave ' + key + ' insertada correctamente en ' + metodoActual);
-        } else {
-          refreshCellsUI();
-          alert('No se pudo insertar, colisión en la posición ' + (index + 1) + ' para ' + metodoActual);
-        }
+      case 'H. Mod':
+        arr = arrayMod; len = longitudClavesMod; col = collisionMod;
+        if (!arr) { alert('Por Favor cree la Estructura para ' + metodoActual); return; }
+        if (len == null) { alert('Longitud no definida'); return; }
+        if (input.length !== len) { alert('Todas las claves deben tener ' + len + ' dígitos'); return; }
+        idx = modHash(key, arr.length);
         break;
-      }
-      case 'H. Cuadrado': {
-        if (!arraySqr) { alert('Por Favor cree la Estructura para ' + metodoActual); return; }
-        if (longitudClavesSqr == null) { alert('Longitud no definida'); return; }
-        if (input.length !== longitudClavesSqr) { alert('Todas las claves deben tener ' + longitudClavesSqr + ' dígitos'); return; }
-
-        const n = arraySqr.length;
-        const index = middleSquareHash(key, n);
-
-        // Mismo comportamiento: no probing, no modulo adicional
-        if (arraySqr[index] != null && arraySqr[index] === key) {
-          alert('La clave ' + key + ' ya existe en la tabla de ' + metodoActual);
-          return;
-        } else if (arraySqr[index] == null) {
-          arraySqr[index] = key;
-          refreshCellsUI();
-          alert('Clave ' + key + ' insertada correctamente en ' + metodoActual);
-        } else {
-          refreshCellsUI();
-          alert('No se pudo insertar, colisión en la posición ' + (index + 1) + ' para ' + metodoActual);
-        }
+      case 'H. Cuadrado':
+        arr = arraySqr; len = longitudClavesSqr; col = collisionSqr;
+        if (!arr) { alert('Por Favor cree la Estructura para ' + metodoActual); return; }
+        if (len == null) { alert('Longitud no definida'); return; }
+        if (input.length !== len) { alert('Todas las claves deben tener ' + len + ' dígitos'); return; }
+        idx = middleSquareHash(key, arr.length);
         break;
-      }
-      case 'H. Plegamiento': {
-        if (!arrayFold) { alert('Por Favor cree la Estructura para ' + metodoActual); return; }
-        if (longitudClavesFold == null) { alert('Longitud no definida'); return; }
-        if (input.length !== longitudClavesFold) { alert('Todas las claves deben tener ' + longitudClavesFold + ' dígitos'); return; }
-
-        const n = arrayFold.length;
-        const index = foldingHash(key, n);
-
-        if (arrayFold[index] != null && arrayFold[index] === key) {
-          alert('La clave ' + key + ' ya existe en la tabla de ' + metodoActual);
-          return;
-        } else if (arrayFold[index] == null) {
-          arrayFold[index] = key;
-          refreshCellsUI();
-          alert('Clave ' + key + ' insertada correctamente en ' + metodoActual);
-        } else {
-          refreshCellsUI();
-          alert('No se pudo insertar, colisión en la posición ' + (index + 1) + ' para ' + metodoActual);
-        }
+      case 'H. Plegamiento':
+        arr = arrayFold; len = longitudClavesFold; col = collisionFold;
+        if (!arr) { alert('Por Favor cree la Estructura para ' + metodoActual); return; }
+        if (len == null) { alert('Longitud no definida'); return; }
+        if (input.length !== len) { alert('Todas las claves deben tener ' + len + ' dígitos'); return; }
+        idx = foldingHash(key, arr.length);
         break;
-      }
-      case 'H. Truncamiento': {
-        if (!arrayTrunk) { alert('Por Favor cree la Estructura para ' + metodoActual); return; }
-        if (longitudClavesTrunk == null) { alert('Longitud no definida'); return; }
-        if (input.length !== longitudClavesTrunk) { alert('Todas las claves deben tener ' + longitudClavesTrunk + ' dígitos'); return; }
-
-        const n = arrayTrunk.length;
-        const index = truncationHash(key, n);
-
-        if (arrayTrunk[index] != null && arrayTrunk[index] === key) {
-          alert('La clave ' + key + ' ya existe en la tabla de ' + metodoActual);
-          return;
-        } else if (arrayTrunk[index] == null) {
-          arrayTrunk[index] = key;
-          refreshCellsUI();
-          alert('Clave ' + key + ' insertada correctamente en ' + metodoActual);
-        } else {
-          refreshCellsUI();
-          alert('No se pudo insertar, colisión en la posición ' + (index + 1) + ' para ' + metodoActual);
-        }
+      case 'H. Truncamiento':
+        arr = arrayTrunk; len = longitudClavesTrunk; col = collisionTrunk;
+        if (!arr) { alert('Por Favor cree la Estructura para ' + metodoActual); return; }
+        if (len == null) { alert('Longitud no definida'); return; }
+        if (input.length !== len) { alert('Todas las claves deben tener ' + len + ' dígitos'); return; }
+        idx = truncationHash(key, arr.length);
         break;
-      }
     }
+
+    const result = performInsert(arr, key, idx, col);
+    if (result.success) {
+      refreshCellsUI();
+    } else {
+      alert(result.msg);
+    }
+
   } catch (ex) {
     alert('Valor inválido');
   }
@@ -296,56 +395,41 @@ function onSearch() {
     const input = keyInput.value.trim();
     const key = parseInt(input, 10);
 
+    let arr, len, col, idx;
+
     switch (metodoActual) {
-      case 'H. Mod': {
-        if (longitudClavesMod == null) { alert('Longitud de claves no definida'); return; }
-        if (input.length !== longitudClavesMod) { alert('Todas las claves deben tener ' + longitudClavesMod + ' dígitos'); return; }
-
-        clearHighlights();
-        const n = arrayMod ? arrayMod.length : 0;
-        const index = modHash(key, n);
-        const steps = [index];
-        const foundIndex = (arrayMod && arrayMod[index] != null && arrayMod[index] === key) ? index : -1;
-        animateSearch(steps, foundIndex);
+      case 'H. Mod':
+        arr = arrayMod; len = longitudClavesMod; col = collisionMod;
+        if (len == null) { alert('Longitud de claves no definida'); return; }
+        if (input.length !== len) { alert('Todas las claves deben tener ' + len + ' dígitos'); return; }
+        idx = modHash(key, arr ? arr.length : 0);
         break;
-      }
-      case 'H. Cuadrado': {
-        if (longitudClavesSqr == null) { alert('Longitud de claves no definida'); return; }
-        if (input.length !== longitudClavesSqr) { alert('Todas las claves deben tener ' + longitudClavesSqr + ' dígitos'); return; }
-
-        clearHighlights();
-        const n = arraySqr ? arraySqr.length : 0;
-        const index = middleSquareHash(key, n);
-        const steps = [index];
-        const foundIndex = (arraySqr && arraySqr[index] != null && arraySqr[index] === key) ? index : -1;
-        animateSearch(steps, foundIndex);
+      case 'H. Cuadrado':
+        arr = arraySqr; len = longitudClavesSqr; col = collisionSqr;
+        if (len == null) { alert('Longitud de claves no definida'); return; }
+        if (input.length !== len) { alert('Todas las claves deben tener ' + len + ' dígitos'); return; }
+        idx = middleSquareHash(key, arr ? arr.length : 0);
         break;
-      }
-      case 'H. Plegamiento': {
-        if (longitudClavesFold == null) { alert('Longitud de claves no definida'); return; }
-        if (input.length !== longitudClavesFold) { alert('Todas las claves deben tener ' + longitudClavesFold + ' dígitos'); return; }
-
-        clearHighlights();
-        const n = arrayFold ? arrayFold.length : 0;
-        const index = foldingHash(key, n);
-        const steps = [index];
-        const foundIndex = (arrayFold && arrayFold[index] != null && arrayFold[index] === key) ? index : -1;
-        animateSearch(steps, foundIndex);
+      case 'H. Plegamiento':
+        arr = arrayFold; len = longitudClavesFold; col = collisionFold;
+        if (len == null) { alert('Longitud de claves no definida'); return; }
+        if (input.length !== len) { alert('Todas las claves deben tener ' + len + ' dígitos'); return; }
+        idx = foldingHash(key, arr ? arr.length : 0);
         break;
-      }
-      case 'H. Truncamiento': {
-        if (longitudClavesTrunk == null) { alert('Longitud de claves no definida'); return; }
-        if (input.length !== longitudClavesTrunk) { alert('Todas las claves deben tener ' + longitudClavesTrunk + ' dígitos'); return; }
-
-        clearHighlights();
-        const n = arrayTrunk ? arrayTrunk.length : 0;
-        const index = truncationHash(key, n);
-        const steps = [index];
-        const foundIndex = (arrayTrunk && arrayTrunk[index] != null && arrayTrunk[index] === key) ? index : -1;
-        animateSearch(steps, foundIndex);
+      case 'H. Truncamiento':
+        arr = arrayTrunk; len = longitudClavesTrunk; col = collisionTrunk;
+        if (len == null) { alert('Longitud de claves no definida'); return; }
+        if (input.length !== len) { alert('Todas las claves deben tener ' + len + ' dígitos'); return; }
+        idx = truncationHash(key, arr ? arr.length : 0);
         break;
-      }
     }
+
+    if (!arr) { alert('Estructura no creada'); return; }
+
+    clearHighlights();
+    const { steps, foundIndex } = performSearch(arr, key, idx, col);
+    animateSearch(steps, foundIndex);
+
   } catch (ex) {
     alert('Valor inválido');
   }
@@ -357,112 +441,40 @@ function onDelete() {
     const input = keyInput.value.trim();
     const key = parseInt(input, 10);
 
+    let arr, len, col, idx;
+
     switch (metodoActual) {
-      case 'H. Mod': {
-        const n = arrayMod ? arrayMod.length : 0;
-        const index = modHash(key, n);
-
-        if (arrayMod && arrayMod[index] != null && arrayMod[index] === key) {
-          arrayMod[index] = null;
-          refreshCellsUI();
-          alert('Clave ' + key + ' eliminada de la posición ' + (index + 1));
-        } else {
-          alert('La clave ' + key + ' no se encuentra en la tabla');
-        }
-        clearHighlights();
-
-        const steps = [index];
-        const foundIndex = (arrayMod && arrayMod[index] != null && arrayMod[index] === key) ? index : -1;
-        animateDelete(steps, foundIndex, () => {
-          if (foundIndex !== -1) {
-            arrayMod[foundIndex] = null;
-            refreshCellsUI();
-            alert('Clave ' + key + ' eliminada de la posición ' + (foundIndex + 1));
-          } else {
-            alert('La clave ' + key + ' no se encuentra en la tabla');
-          }
-        });
+      case 'H. Mod':
+        arr = arrayMod; len = longitudClavesMod; col = collisionMod;
+        idx = modHash(key, arr ? arr.length : 0);
         break;
-      }
-      case 'H. Cuadrado': {
-        const n = arraySqr ? arraySqr.length : 0;
-        const index = middleSquareHash(key, n);
-
-        if (arraySqr && arraySqr[index] != null && arraySqr[index] === key) {
-          arraySqr[index] = null;
-          refreshCellsUI();
-          alert('Clave ' + key + ' eliminada de la posición ' + (index + 1));
-        } else {
-          alert('La clave ' + key + ' no se encuentra en la tabla');
-        }
-        clearHighlights();
-
-        const steps = [index];
-        const foundIndex = (arraySqr && arraySqr[index] != null && arraySqr[index] === key) ? index : -1;
-        animateDelete(steps, foundIndex, () => {
-          if (foundIndex !== -1) {
-            arraySqr[foundIndex] = null;
-            refreshCellsUI();
-            alert('Clave ' + key + ' eliminada de la posición ' + (foundIndex + 1));
-          } else {
-            alert('La clave ' + key + ' no se encuentra en la tabla');
-          }
-        });
+      case 'H. Cuadrado':
+        arr = arraySqr; len = longitudClavesSqr; col = collisionSqr;
+        idx = middleSquareHash(key, arr ? arr.length : 0);
         break;
-      }
-      case 'H. Plegamiento': {
-        const n = arrayFold ? arrayFold.length : 0;
-        const index = foldingHash(key, n);
-
-        if (arrayFold && arrayFold[index] != null && arrayFold[index] === key) {
-          arrayFold[index] = null;
-          refreshCellsUI();
-          alert('Clave ' + key + ' eliminada de la posición ' + (index + 1));
-        } else {
-          alert('La clave ' + key + ' no se encuentra en la tabla');
-        }
-        clearHighlights();
-
-        const steps = [index];
-        const foundIndex = (arrayFold && arrayFold[index] != null && arrayFold[index] === key) ? index : -1;
-        animateDelete(steps, foundIndex, () => {
-          if (foundIndex !== -1) {
-            arrayFold[foundIndex] = null;
-            refreshCellsUI();
-            alert('Clave ' + key + ' eliminada de la posición ' + (foundIndex + 1));
-          } else {
-            alert('La clave ' + key + ' no se encuentra en la tabla');
-          }
-        });
+      case 'H. Plegamiento':
+        arr = arrayFold; len = longitudClavesFold; col = collisionFold;
+        idx = foldingHash(key, arr ? arr.length : 0);
         break;
-      }
-      case 'H. Truncamiento': {
-        const n = arrayTrunk ? arrayTrunk.length : 0;
-        const index = truncationHash(key, n);
-
-        if (arrayTrunk && arrayTrunk[index] != null && arrayTrunk[index] === key) {
-          arrayTrunk[index] = null;
-          refreshCellsUI();
-          alert('Clave ' + key + ' eliminada de la posición ' + (index + 1));
-        } else {
-          alert('La clave ' + key + ' no se encuentra en la tabla');
-        }
-        clearHighlights();
-
-        const steps = [index];
-        const foundIndex = (arrayTrunk && arrayTrunk[index] != null && arrayTrunk[index] === key) ? index : -1;
-        animateDelete(steps, foundIndex, () => {
-          if (foundIndex !== -1) {
-            arrayTrunk[foundIndex] = null;
-            refreshCellsUI();
-            alert('Clave ' + key + ' eliminada de la posición ' + (foundIndex + 1));
-          } else {
-            alert('La clave ' + key + ' no se encuentra en la tabla');
-          }
-        });
+      case 'H. Truncamiento':
+        arr = arrayTrunk; len = longitudClavesTrunk; col = collisionTrunk;
+        idx = truncationHash(key, arr ? arr.length : 0);
         break;
-      }
     }
+
+    if (!arr) { alert('Estructura no creada'); return; }
+
+    clearHighlights();
+    const { steps, foundIndex, success, msg } = performDelete(arr, key, idx, col);
+
+    animateDelete(steps, foundIndex, () => {
+      if (success) {
+        refreshCellsUI();
+        alert(msg);
+      } else {
+        alert(msg);
+      }
+    });
 
   } catch (ex) {
     alert('Clave inválida');
@@ -483,7 +495,7 @@ function animateSearch(steps, foundIndex) {
   const timer = setInterval(() => {
     if (idx >= steps.length) {
       if (foundIndex === -1) {
-        alert('Valor no encontrado (colisión o nunca insertado)');
+        alert('Valor no encontrado');
       }
       keyInput.disabled = false;
       clearInterval(timer);
@@ -515,7 +527,7 @@ function animateDelete(steps, foundIndex, onFinished) {
   const timer = setInterval(() => {
     if (idx >= steps.length) {
       if (foundIndex === -1) {
-        alert('Valor no encontrado (colisión o nunca insertado)');
+        alert('Valor no encontrado');
       }
       keyInput.disabled = false;
       clearInterval(timer);
@@ -587,7 +599,7 @@ function onFileSelected(e) {
     return;
   }
   const reader = new FileReader();
-  reader.onload = function(ev) {
+  reader.onload = function (ev) {
     try {
       const text = ev.target.result;
       parseModFile(text);

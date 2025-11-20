@@ -1,19 +1,20 @@
 <!doctype html>
 <html lang="es">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Hash&Seek — Migración Electron</title>
+  <title>Busquedas Internas - Busqueda por Transformacion de Claves</title>
 
   <!-- Usé tu styles.css exactamente (asegúrate de colocarlo al lado de este HTML) -->
   <link rel="stylesheet" href="styles.css" />
 
 </head>
+
 <body>
   <div class="topbar">
     <div class="brand">
-      <div class="logo-text">Hash&amp;Seek</div>
-      <div class="subtitle">Visualizador de Hashing</div>
+      <div class="logo-text">Busquedas por Transformacion de Claves</div>
     </div>
     <div>
       <!-- Aquí dejamos los botones de ventana nativos de electron; no replicamos los custom -->
@@ -35,13 +36,24 @@
       </div>
 
       <div class="form-row">
-        <label for="sizeArray">Tamaño del Arreglo:</label>
-        <input id="sizeArray" type="number" min="1" value="10" />
-        <button class="btn outline" id="createBtn">Crear</button>
+        <label for="collisionSelect">Solución de Colisiones:</label>
+        <select id="collisionSelect">
+          <option value="linear">Prueba Lineal</option>
+          <option value="quadratic">Prueba Cuadrática</option>
+          <option value="chaining">Encadenamiento</option>
+          <option value="nested">Arreglos Anidados</option>
+          <option value="double">Doble Hash</option>
+        </select>
       </div>
 
       <div class="form-row">
-        <label for="sizeKey">Tamaño de la Clave (dígitos):</label>
+        <label for="sizeArray">Tamaño de la estructura:</label>
+        <input id="sizeArray" type="number" min="1" value="10" />
+        <button class="btn" id="createBtn">Crear</button>
+      </div>
+
+      <div class="form-row">
+        <label for="sizeKey">Tamaño de la Clave:</label>
         <input id="sizeKey" type="number" min="1" value="2" />
       </div>
 
@@ -62,8 +74,6 @@
         <!-- input file escondido para recuperar -->
         <input id="fileInput" type="file" accept=".mod" style="display:none;">
       </div>
-
-      <div class="notes" id="notes">Animación de búsqueda/descartes. Claves únicas. Archivo: primera línea = longitud de clave (o vacío), luego cada línea valor o vacío para null.</div>
     </div>
 
     <!-- Visual abajo -->
@@ -71,7 +81,7 @@
       <div class="cells-wrap" id="cellsWrap">
         <!-- Celdas renderizadas por JS -->
         <div style="width:8px;"></div>
-        <div style="color:var(--muted); padding: 24px;">No hay estructura: crea un arreglo para comenzar.</div>
+        <div style="color:var(--muted); padding: 24px;">No hay estructura: crea para comenzar.</div>
       </div>
     </div>
 
@@ -79,4 +89,5 @@
 
   <script src="app.js"></script>
 </body>
+
 </html>

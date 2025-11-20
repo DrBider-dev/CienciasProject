@@ -26,7 +26,7 @@
   },
   "homepage": "https://github.com/DrBider-dev/CienciasProject#readme",
   "devDependencies": {
-    "electron": "^39.1.0",
+    "electron": "^39.2.3",
     "electron-builder": "^26.0.12"
   },
   "build": {
@@ -49,11 +49,15 @@
       "target": [
         {
           "target": "nsis",
-          "arch": ["x64"]
+          "arch": [
+            "x64"
+          ]
         },
         {
           "target": "portable",
-          "arch": ["x64"]
+          "arch": [
+            "x64"
+          ]
         }
       ],
       "icon": "build/icon.ico",
@@ -75,7 +79,9 @@
       {
         "from": "src/Assets/",
         "to": "src/Assets/",
-        "filter": ["**/*"]
+        "filter": [
+          "**/*"
+        ]
       }
     ],
     "publish": null

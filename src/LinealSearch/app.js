@@ -25,8 +25,8 @@
   const btnBack = document.getElementById('btnBack');
 
   // Utilidades
-  function showWarn(msg){ alert(msg); }
-  function showInfo(msg){ alert(msg); }
+  function showWarn(msg) { alert(msg); }
+  function showInfo(msg) { alert(msg); }
 
   function render() {
     // vaciar contenedor
@@ -34,7 +34,7 @@
     if (!array) {
       const hint = document.createElement('div');
       hint.style.color = 'var(--muted)';
-      hint.innerText = 'No hay estructura: crea un arreglo para comenzar.';
+      hint.innerText = 'No hay estructura: crea para comenzar.';
       cellsWrap.appendChild(hint);
       return;
     }
@@ -57,7 +57,7 @@
 
   // Ordena dejando nulls al final
   function sortWithNulls(arr) {
-    arr.sort((a,b) => {
+    arr.sort((a, b) => {
       if (a === null && b === null) return 0;
       if (a === null) return 1;
       if (b === null) return -1;
@@ -94,7 +94,7 @@
 
     // 3. buscar primer espacio libre
     let freeIndex = -1;
-    for (let i=0;i<array.length;i++){
+    for (let i = 0; i < array.length; i++) {
       if (array[i] === null) { freeIndex = i; break; }
     }
     if (freeIndex === -1) return showWarn('No se pudo insertar, la tabla está llena');
@@ -123,7 +123,7 @@
 
   function scrollCellIntoView(index) {
     const el = cellsWrap.querySelector(`.cell[data-index="${index}"]`);
-    if (el) el.scrollIntoView({behavior:'smooth', block:'center', inline:'center'});
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
   }
 
   // Animación de búsqueda
@@ -135,7 +135,7 @@
     const interval = setInterval(() => {
       // limpiar highlights
       Array.from(cellsWrap.querySelectorAll('.cell')).forEach(c => {
-        c.classList.remove('highlight-found','highlight-discard');
+        c.classList.remove('highlight-found', 'highlight-discard');
       });
 
       if (i >= steps.length) {
@@ -177,7 +177,7 @@
     if (input.length !== keyLength) return showWarn(`Todas las claves deben tener ${keyLength} dígitos`);
 
     render(); // refrescar vista antes de animación
-    const {steps, foundIndex} = linearSearchSteps(value);
+    const { steps, foundIndex } = linearSearchSteps(value);
     animateSearch(steps, foundIndex, null);
   });
 
@@ -188,7 +188,7 @@
     let i = 0;
     const interval = setInterval(() => {
       Array.from(cellsWrap.querySelectorAll('.cell')).forEach(c => {
-        c.classList.remove('highlight-found','highlight-discard');
+        c.classList.remove('highlight-found', 'highlight-discard');
       });
 
       if (i >= steps.length) {
@@ -233,7 +233,7 @@
     if (input.length !== keyLength) return showWarn(`Todas las claves deben tener ${keyLength} dígitos`);
 
     render();
-    const {steps, foundIndex} = linearSearchSteps(value);
+    const { steps, foundIndex } = linearSearchSteps(value);
     animateDelete(steps, foundIndex, () => {
       if (foundIndex !== -1) {
         array[foundIndex] = null;
@@ -252,7 +252,7 @@
     for (const v of array) {
       lines.push(v === null ? '' : String(v));
     }
-    const blob = new Blob([lines.join('\n')], {type: 'text/plain'});
+    const blob = new Blob([lines.join('\n')], { type: 'text/plain' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
     const filename = 'linearsearch.lin';  // Cambiado a .lin
@@ -276,13 +276,13 @@
         const lines = text.split(/\r?\n/);
         // primera línea = longitud de claves
         const first = (lines.shift() || '').trim();
-        keyLength = (first === '') ? null : parseInt(first,10);
+        keyLength = (first === '') ? null : parseInt(first, 10);
         // resto: cada linea -> number o null
         const parsed = [];
         for (const L of lines) {
           const t = (L || '').trim();
           if (t === '') parsed.push(null);
-          else parsed.push(parseInt(t,10));
+          else parsed.push(parseInt(t, 10));
         }
         array = parsed.length ? parsed : null;
         // Asegurarse que es array (si se cargó vacío, crear 0-length)

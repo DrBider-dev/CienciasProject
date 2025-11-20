@@ -32,22 +32,22 @@ function makeGraph(v, e) {
 function union(G, H) {
   return {
     vertices: [...new Set([...G.vertices, ...H.vertices])],
-    edges: [...new Set([...G.edges.map(x => x.a+"-"+x.b), ...H.edges.map(x => x.a+"-"+x.b)])]
-      .map(e => { const [a,b]=e.split("-"); return {a,b}; })
+    edges: [...new Set([...G.edges.map(x => x.a + "-" + x.b), ...H.edges.map(x => x.a + "-" + x.b)])]
+      .map(e => { const [a, b] = e.split("-"); return { a, b }; })
   };
 }
 
 function intersection(G, H) {
-  const setH = new Set(H.edges.map(x => x.a+"-"+x.b));
+  const setH = new Set(H.edges.map(x => x.a + "-" + x.b));
   return {
     vertices: G.vertices.filter(v => H.vertices.includes(v)),
-    edges: G.edges.filter(x => setH.has(x.a+"-"+x.b))
+    edges: G.edges.filter(x => setH.has(x.a + "-" + x.b))
   };
 }
 
 function xor(G, H) {
-  const gSet = new Set(G.edges.map(x => x.a+"-"+x.b));
-  const hSet = new Set(H.edges.map(x => x.a+"-"+x.b));
+  const gSet = new Set(G.edges.map(x => x.a + "-" + x.b));
+  const hSet = new Set(H.edges.map(x => x.a + "-" + x.b));
   const res = [];
 
   gSet.forEach(e => { if (!hSet.has(e)) res.push(e); });
@@ -55,7 +55,7 @@ function xor(G, H) {
 
   return {
     vertices: [...new Set([...G.vertices, ...H.vertices])],
-    edges: res.map(e => { const [a,b]=e.split("-"); return {a,b}; })
+    edges: res.map(e => { const [a, b] = e.split("-"); return { a, b }; })
   };
 }
 
@@ -250,4 +250,50 @@ function operate(type) {
   drawGraph(document.getElementById("canvas1"), G1);
   drawGraph(document.getElementById("canvas2"), G2);
   drawGraph(document.getElementById("canvasResult"), R);
+}
+
+/* ===================
+   SAVE / LOAD
+   =================== */
+
+async function saveGraphs() {
+  const data = {
+    v1: document.getElementById('v1').value,
+    e1: document.getElementById('e1').value,
+    v2: document.getElementById('v2').value,
+    e2: document.getElementById('e2').value
+  };
+
+  const json = JSON.stringify(data, null, 2);
+  const result = await window.electronAPI.saveFile(json, {
+    filters: [{ name: 'Graph Operations File', extensions: ['gop'] }]
+  });
+
+  if (!result.success) {
+    if (result.error) alert("Error al guardar: " + result.error);
+  } else {
+    alert("Grafos guardados correctamente.");
+  }
+}
+
+async function loadGraphs() {
+  const result = await window.electronAPI.openFile({
+    filters: [{ name: 'Graph Operations File', extensions: ['gop'] }]
+  });
+
+  if (!result.success) {
+    if (result.error) alert("Error al abrir: " + result.error);
+    return;
+  }
+
+  try {
+    const data = JSON.parse(result.content);
+    document.getElementById('v1').value = data.v1 || "";
+    document.getElementById('e1').value = data.e1 || "";
+    document.getElementById('v2').value = data.v2 || "";
+    document.getElementById('e2').value = data.e2 || "";
+    alert("Grafos recuperados correctamente.");
+  } catch (e) {
+    alert("El archivo no tiene un formato válido.");
+  }
 }

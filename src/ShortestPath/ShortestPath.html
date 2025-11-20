@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Algoritmos de Camino Mínimo</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
+
 <body>
   <div class="topbar">
     <div class="brand">
@@ -46,6 +48,11 @@
         <button class="btn outline" id="drawBtn">Redibujar</button>
         <button class="btn outline" id="resetBtn">Limpiar Log</button>
       </div>
+
+      <div style="margin-top: 20px; border-top: 1px solid var(--border); padding-top: 10px;">
+        <button class="btn" onclick="saveGraphs()">Guardar</button>
+        <button class="btn" onclick="loadGraphs()">Recuperar</button>
+      </div>
     </div>
 
     <div class="main-area">
@@ -75,4 +82,5 @@
 
   <script src="app.js"></script>
 </body>
+
 </html>
