@@ -221,6 +221,29 @@ function drawGraph(canvas, graph) {
 }
 
 /* ===================
+   REAL-TIME UPDATE
+   =================== */
+
+function updateGraphs() {
+  const v1 = document.getElementById('v1');
+  const e1 = document.getElementById('e1');
+  const v2 = document.getElementById('v2');
+  const e2 = document.getElementById('e2');
+
+  const G1 = makeGraph(parseVertices(v1.value), parseEdges(e1.value));
+  const G2 = makeGraph(parseVertices(v2.value), parseEdges(e2.value));
+
+  drawGraph(document.getElementById("canvas1"), G1);
+  drawGraph(document.getElementById("canvas2"), G2);
+}
+
+['v1', 'e1', 'v2', 'e2'].forEach(id => {
+  document.getElementById(id).addEventListener('input', updateGraphs);
+});
+
+window.addEventListener('load', updateGraphs);
+
+/* ===================
    MAIN
    =================== */
 
@@ -292,6 +315,7 @@ async function loadGraphs() {
     document.getElementById('e1').value = data.e1 || "";
     document.getElementById('v2').value = data.v2 || "";
     document.getElementById('e2').value = data.e2 || "";
+    updateGraphs();
     alert("Grafos recuperados correctamente.");
   } catch (e) {
     alert("El archivo no tiene un formato válido.");
