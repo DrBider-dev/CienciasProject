@@ -12,7 +12,7 @@
   <div class="topbar">
     <div class="brand">
       <div class="logo-text">Caminos Más Cortos</div>
-      <div class="subtitle">Bellman · Dijkstra · Floyd</div>
+      <div class="subtitle">Floyd-Warshall</div>
     </div>
     <div>
       <button class="link" id="backBtn">‹ Volver</button>
@@ -27,13 +27,8 @@
       </div>
 
       <div class="form-row">
-        <label>Aristas (dir):</label>
+        <label>Aristas:</label>
         <input id="edgesInput" type="text" placeholder="Ej: A-B:3,B-C:2,C-D:1" />
-      </div>
-
-      <div class="form-row">
-        <label>Nodo inicial (para Bellman/Dijkstra):</label>
-        <input id="startNode" type="text" placeholder="Ej: A" />
       </div>
 
       <div class="form-row">
@@ -42,8 +37,6 @@
       </div>
 
       <div class="buttons">
-        <button class="btn" id="runBellman">Bellman-Ford</button>
-        <button class="btn" id="runDijkstra">Dijkstra</button>
         <button class="btn" id="runFloyd">Floyd-Warshall</button>
         <button class="btn outline" id="drawBtn">Redibujar</button>
         <button class="btn outline" id="resetBtn">Limpiar Log</button>
@@ -61,10 +54,6 @@
       </div>
 
       <div class="info-panel">
-        <div class="info-section">
-          <div class="section-title">Estado</div>
-          <div id="distancesDisplay" class="distances"></div>
-        </div>
 
         <div class="info-section">
           <div class="section-title">Matriz (Floyd)</div>
