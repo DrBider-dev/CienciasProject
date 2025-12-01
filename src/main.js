@@ -59,6 +59,97 @@ ipcMain.handle('open-file', async (event, options = {}) => {
   }
 });
 
+// Imprimir
+ipcMain.handle('print-image', async (event, dataURL) => {
+  const win = new BrowserWindow({
+    width: 800,
+    height: 600,
+    show: false,
+    webPreferences: { nodeIntegration: false, contextIsolation: true }
+  });
+
+  const html = `
+    <!doctype html>
+    <html>
+      <head><meta charset="utf-8"/>
+      <style>
+        html,body{margin:0;padding:0}
+        img{display:block;width:100%;height:auto}
+        @page{size:auto;margin:10mm}
+        body{-webkit-print-color-adjust:exact}
+      </style>
+      </head>
+      <body><img src="${dataURL}" /></body>
+    </html>
+  `;
+
+  await win.loadURL('data:text/html;charset=utf-8,' + encodeURIComponent(html));
+
+  try {
+    // 1) Intentar impresión silenciosa (predeterminada)
+    const silentResult = await new Promise((resolve) => {
+      win.webContents.print({ silent: true, printBackground: true }, (success, failureReason) => {
+        resolve({ success, failureReason });
+      });
+    });
+
+    if (silentResult.success) {
+      win.destroy();
+      return { status: 'printed' };
+    }
+
+    // Si la impresión silenciosa falla, intentar UNA vez la impresión con diálogo (no silenciosa).
+    // Esto permite al usuario elegir impresora si silent falló por permisos/configuración.
+    const nonSilentResult = await new Promise((resolve) => {
+      win.webContents.print({ silent: false, printBackground: true }, (success, failureReason) => {
+        resolve({ success, failureReason });
+      });
+    });
+
+    if (nonSilentResult.success) {
+      // Se imprimió correctamente con diálogo
+      win.destroy();
+      return { status: 'printed' };
+    }
+
+    // Si el usuario canceló el diálogo de impresión, failureReason suele contener 'cancel' o 'cancelled'
+    const reason = (nonSilentResult.failureReason || '').toString().toLowerCase();
+    if (reason.includes('cancel') || reason.includes('cancelled') || reason.includes('canceled')) {
+      // El usuario canceló => no abrir diálogo de guardado a PDF, devolvemos cancelled
+      win.destroy();
+      return { status: 'cancelled' };
+    }
+
+    // Si llegamos aquí: la impresión silenciosa y la no silenciosa fallaron por otras razones (no cancel)
+    // Generamos el PDF y pedimos guardar UNA vez.
+    const pdfBuffer = await win.webContents.printToPDF({ printBackground: true });
+
+    const { canceled, filePath } = await dialog.showSaveDialog({
+      title: 'Guardar captura como PDF para impresión',
+      defaultPath: path.join(app.getPath('documents'), 'exportacion.pdf'),
+      filters: [{ name: 'PDF', extensions: ['pdf'] }],
+    });
+
+    if (!canceled && filePath) {
+      await fs.writeFile(filePath, pdfBuffer);
+      win.destroy();
+      return { status: 'saved', filePath };
+    }
+
+    // Usuario canceló guardar PDF
+    win.destroy();
+    return { status: 'cancelled' };
+
+  } catch (err) {
+    console.error('Error en print-image:', err);
+    try { win.destroy(); } catch (e) { }
+    return { status: 'error', message: err.message || String(err) };
+  }
+});
+
+
+
+
 app.whenReady().then(createWindow);
 
 app.on('window-all-closed', () => {

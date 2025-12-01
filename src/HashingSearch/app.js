@@ -32,6 +32,7 @@ const insertBtn = document.getElementById('insertBtn');
 const searchBtn = document.getElementById('searchBtn');
 const deleteBtn = document.getElementById('deleteBtn');
 const saveBtn = document.getElementById('saveBtn');
+const btnPrint = document.getElementById('btnPrint');
 const loadBtn = document.getElementById('loadBtn');
 const fileInput = document.getElementById('fileInput');
 const logoImg = document.getElementById('logo');
@@ -42,6 +43,7 @@ insertBtn.addEventListener('click', onInsert);
 searchBtn.addEventListener('click', onSearch);
 deleteBtn.addEventListener('click', onDelete);
 saveBtn.addEventListener('click', onSave);
+btnPrint.addEventListener('click', onPrint);
 loadBtn.addEventListener('click', () => fileInput.click());
 fileInput.addEventListener('change', onFileSelected);
 hashSelect.addEventListener('change', () => { refreshCellsUI(); });
@@ -578,6 +580,39 @@ function onSave() {
   a.click();
   URL.revokeObjectURL(url);
   alert('Archivo guardado correctamente.');
+}
+
+function onPrint() {
+  const el = document.getElementById('cellsWrap');
+  if (!el) return;
+
+  // html2canvas debe estar cargado en el HTML
+  if (typeof html2canvas === 'undefined') {
+    alert('Error: html2canvas no cargado');
+    return;
+  }
+
+  html2canvas(el, { backgroundColor: '#ffffff', scale: 2 }).then(canvas => {
+    const dataURL = canvas.toDataURL('image/png');
+    window.electronAPI.printImage(dataURL).then(result => {
+      console.log(result);
+      if (result.status === "printed") {
+        alert("Impreso correctamente");
+      } else if (result.status === "saved") {
+        alert("Guardado como PDF en: " + result.filePath);
+      } else if (result.status === "cancelled") {
+        alert("Guardado cancelado");
+      } else {
+        alert("Error al imprimir/guardar");
+      }
+    }).catch(err => {
+      console.error(err);
+      alert("Error al enviar a imprimir");
+    });
+  }).catch(err => {
+    console.error(err);
+    alert("Error al generar imagen del arreglo");
+  });
 }
 
 function writeArrayToLines(lines, name, arr) {

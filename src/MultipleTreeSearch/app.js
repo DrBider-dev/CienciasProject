@@ -255,13 +255,13 @@ document.addEventListener('DOMContentLoaded', () => {
     drawNodes: function () {
       for (const [node, p] of this.positions.entries()) {
         const isHighlighted = this.highlight.has(node);
-        
+
         // Nodo con efecto de relieve
         ctx.beginPath();
         ctx.arc(p.x, p.y, 26, 0, Math.PI * 2);
-        
+
         // Fondo del nodo con gradiente para efecto 3D
-        const gradient = ctx.createRadialGradient(p.x-3, p.y-3, 5, p.x, p.y, 26);
+        const gradient = ctx.createRadialGradient(p.x - 3, p.y - 3, 5, p.x, p.y, 26);
         gradient.addColorStop(0, isHighlighted ? '#e0e0e0' : '#f8f8f8');
         gradient.addColorStop(1, isHighlighted ? '#c8c8c8' : '#e8e8e8');
         ctx.fillStyle = gradient;
@@ -277,7 +277,7 @@ document.addEventListener('DOMContentLoaded', () => {
           ctx.strokeStyle = '#ffffff';
           ctx.setLineDash([]);
           ctx.stroke();
-          
+
           ctx.beginPath();
           ctx.arc(p.x, p.y, 26, 0, Math.PI * 2);
           ctx.strokeStyle = '#a0a0a0';
@@ -370,13 +370,13 @@ document.addEventListener('DOMContentLoaded', () => {
       const it = insertionOrder[i];
       const row = document.createElement('div');
       row.className = 'letter-list-item';
-      const left = document.createElement('span'); 
-      left.className = 'letter-char'; 
+      const left = document.createElement('span');
+      left.className = 'letter-char';
       left.textContent = it.char;
-      const right = document.createElement('span'); 
-      right.className = 'letter-bits'; 
+      const right = document.createElement('span');
+      right.className = 'letter-bits';
       right.textContent = " → " + it.bits;
-      row.appendChild(left); 
+      row.appendChild(left);
       row.appendChild(right);
       keysListEl.appendChild(row);
     }
