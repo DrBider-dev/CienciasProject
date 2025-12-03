@@ -14,68 +14,107 @@ const dinamicoTexts = {
   shortestPath: "Camino Más Corto<br>Algoritmos para encontrar la ruta más corta entre nodos en un grafo, como Dijkstra o Floyd."
 };
 
-const dinamicoArea = document.getElementById("dinamicoArea");
+document.addEventListener('DOMContentLoaded', () => {
+  console.log('Index app.js loaded');
 
-function showDinamico(id) {
-  dinamicoArea.innerHTML = dinamicoTexts[id] || "Información no disponible";
-  dinamicoArea.classList.add("visible");
-}
+  const dinamicoArea = document.getElementById("dinamicoArea");
 
-function hideDinamico() {
-  dinamicoArea.classList.remove("visible");
-  dinamicoArea.innerHTML = "";
-}
-
-document.querySelectorAll(".option").forEach(opt => {
-  const id = opt.dataset.id;
-  opt.addEventListener("mouseenter", () => { opt.classList.add("active"); showDinamico(id); });
-  opt.addEventListener("mouseleave", () => { opt.classList.remove("active"); hideDinamico(); });
-  opt.addEventListener("click", () => openWindowFor(id));
-});
-
-function openWindowFor(id) {
-  const map = {
-    linealSearchLabel: "src/LinealSearch/LinealSearch.html",
-    binarySearchLabel: "src/BinarySearch/BinarySearch.html",
-    hashingSearchlabel: "src/HashingSearch/HashingSearch.html",
-    residualTreeLabel: "src/ResidualTreeSearch/ResidualTreeSearch.html",
-    digitalTreeLabel: "src/DigitalTreeSearch/DigitalTreeSearch.html",
-    multipleTreeLabel: "src/MultipleTreeSearch/MultipleTreeSearch.html",
-    huffmanTreeLabel: "src/HuffmanTreeSearch/HuffmanTreeSearch.html",
-    linealSearchLabel1: "src/ExternalLinealSearch/ExternalLinealSearch.html",
-    binarySearchLabel1: "src/ExternalBinarySearch/ExternalBinarySearch.html",
-    dinamicSearchLabel: "src/DinamicSearch/DinamicSearch.html",
-    linealSearchEX: "src/LinealSearchEX/linealSearchEX.html",
-    binarySearchEX: "src/BinarySearchEX/binarySearchEX.html",
-    dinamicSearchEX: "src/DinamicSearchEX/dinamicSearchEX.html",
-    hashingSearchEX: "src/HashingSearchEX/hashingSearchEX.html",
-    graphOperations: "src/GraphOperations/GraphOperations.html",
-    shortestPath: "src/ShortestPath/ShortestPath.html"
-  };
-
-  const url = map[id];
-  if (url) {
-    // En lugar de abrir una nueva ventana, pedimos al main.js que cargue la página
-    window.electronAPI.navigateTo(url);
-  } else {
-    alert("Página no encontrada: " + id);
+  function showDinamico(id) {
+    if (dinamicoArea) {
+      dinamicoArea.innerHTML = dinamicoTexts[id] || "Información no disponible";
+      dinamicoArea.classList.add("visible");
+    }
   }
-}
 
+  function hideDinamico() {
+    if (dinamicoArea) {
+      dinamicoArea.classList.remove("visible");
+      dinamicoArea.innerHTML = "";
+    }
+  }
 
-const cards = [document.getElementById("card-1"), document.getElementById("card-2"), document.getElementById("card-3"), document.getElementById("card-4")];
-let current = 0;
-function showCard(i) {
-  cards.forEach((c, idx) => c.style.display = idx === i ? "block" : "none");
-  current = i;
-}
+  function openWindowFor(id) {
+    console.log('openWindowFor called with id:', id);
+    const map = {
+      linealSearchLabel: "src/LinealSearch/LinealSearch.html",
+      binarySearchLabel: "src/BinarySearch/BinarySearch.html",
+      hashingSearchlabel: "src/HashingSearch/HashingSearch.html",
+      residualTreeLabel: "src/ResidualTreeSearch/ResidualTreeSearch.html",
+      digitalTreeLabel: "src/DigitalTreeSearch/DigitalTreeSearch.html",
+      multipleTreeLabel: "src/MultipleTreeSearch/MultipleTreeSearch.html",
+      huffmanTreeLabel: "src/HuffmanTreeSearch/HuffmanTreeSearch.html",
+      linealSearchLabel1: "src/ExternalLinealSearch/ExternalLinealSearch.html",
+      binarySearchLabel1: "src/ExternalBinarySearch/ExternalBinarySearch.html",
+      dinamicSearchLabel: "src/DinamicSearch/DinamicSearch.html",
+      linealSearchEX: "src/LinealSearchEX/linealSearchEX.html",
+      binarySearchEX: "src/BinarySearchEX/binarySearchEX.html",
+      dinamicSearchEX: "src/DinamicSearchEX/DinamicSearchEX.html",
+      hashingSearchEX: "src/HashingSearchEX/hashingSearchEX.html",
+      graphOperations: "src/GraphOperations/GraphOperations.html",
+      shortestPath: "src/ShortestPath/ShortestPath.html"
+    };
 
-document.getElementById("next1").onclick = () => showCard(1);
-document.getElementById("next2").onclick = () => showCard(2);
-document.getElementById("next3").onclick = () => showCard(3);
-document.getElementById("prev1").onclick = () => showCard(0);
-document.getElementById("prev2").onclick = () => showCard(0);
-document.getElementById("prev3").onclick = () => showCard(1);
-document.getElementById("prev4").onclick = () => showCard(2);
+    const url = map[id];
+    console.log('URL found:', url);
+    if (url) {
+      console.log('Calling navigateTo with:', url);
+      if (window.electronAPI && window.electronAPI.navigateTo) {
+        window.electronAPI.navigateTo(url);
+      } else {
+        console.error('electronAPI.navigateTo not available');
+        alert('Error: electronAPI no está disponible');
+      }
+    } else {
+      console.error('No URL found for id:', id);
+      alert("Página no encontrada: " + id);
+    }
+  }
 
-document.addEventListener("keydown", e => { if (e.key === "Escape") hideDinamico(); });
+  document.querySelectorAll(".option").forEach(opt => {
+    const id = opt.dataset.id;
+    opt.addEventListener("mouseenter", () => { opt.classList.add("active"); showDinamico(id); });
+    opt.addEventListener("mouseleave", () => { opt.classList.remove("active"); hideDinamico(); });
+    opt.addEventListener("click", () => openWindowFor(id));
+  });
+
+  const cards = [
+    document.getElementById("card-1"),
+    document.getElementById("card-2"),
+    document.getElementById("card-3"),
+    document.getElementById("card-4")
+  ];
+  let current = 0;
+
+  function showCard(i) {
+    cards.forEach((c, idx) => {
+      if (c) c.style.display = idx === i ? "block" : "none";
+    });
+    current = i;
+  }
+
+  // Initialize view
+  showCard(0);
+
+  const next1 = document.getElementById("next1");
+  if (next1) next1.onclick = () => showCard(1);
+
+  const next2 = document.getElementById("next2");
+  if (next2) next2.onclick = () => showCard(2);
+
+  const next3 = document.getElementById("next3");
+  if (next3) next3.onclick = () => showCard(3);
+
+  const prev1 = document.getElementById("prev1");
+  if (prev1) prev1.onclick = () => showCard(0);
+
+  const prev2 = document.getElementById("prev2");
+  if (prev2) prev2.onclick = () => showCard(0);
+
+  const prev3 = document.getElementById("prev3");
+  if (prev3) prev3.onclick = () => showCard(1);
+
+  const prev4 = document.getElementById("prev4");
+  if (prev4) prev4.onclick = () => showCard(2);
+
+  document.addEventListener("keydown", e => { if (e.key === "Escape") hideDinamico(); });
+});

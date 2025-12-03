@@ -13,12 +13,7 @@
     <div class="brand">
       <!-- Si tienes la imagen BinarySearchTitle.png ponla aquí -->
       <!--<img src="assets/BinarySearchTitle.png" alt="BinarySearch" class="logo-img" />-->
-      <<<<<<< HEAD:src/DinamicSearchEX/dinamicSearchEX.html <div class="logo-text">Busqueda Secuencial externa
-    </div>
-    =======
-    <div class="logo-text">Busqueda Hashing Externa</div>
-    >>>>>>> ad2396d (me lleva la que me trajo):src/DinamicSearchEX/hashingSearchEX.html
-
+      <div class="logo-text">Búsqueda Dinámica</div>
     </div>
 
     <div class="actions">
@@ -31,17 +26,14 @@
       <div class="form-row">
         <label for="hashSelect">Método:</label>
         <select id="hashSelect">
-          <option>H. Mod</option>
-          <option>H. Cuadrado</option>
-          <option>H. Plegamiento</option>
-          <option>H. Truncamiento</option>
-          <option>H. Conversion de Base</option>
+          <option>Expansiones Totales</option>
+          <option>Expansiones Parciales</option>
         </select>
       </div>
 
       <div class="form-row">
-        <label for="sizeArray">Tamaño del Arreglo:</label>
-        <input id="sizeArray" type="number" min="1" value="10" />
+        <label for="blockSize">Tamaño del Bloque (filas):</label>
+        <input id="blockSize" type="number" min="1" value="4" />
         <button id="btnCreate" class="btn">Crear</button>
       </div>
 
@@ -67,12 +59,8 @@
       </div>
 
       <div class="notes">
-        <<<<<<< HEAD:src/DinamicSearchEX/dinamicSearchEX.html <small>Animación de búsqueda/descarte. Claves únicas.
-          Archivo: primera línea = longitud de clave (o vacío),
-          luego cada línea valor o vacío para null.</small>
-          =======
-          <small>Hashing Modulo (Clave % Bloques). Inserción secuencial en bloque. Capacidad fija.</small>
-          >>>>>>> ad2396d (me lleva la que me trajo):src/DinamicSearchEX/hashingSearchEX.html
+        <small>Hashing dinámico con expansión/reducción automática. Densidad > 0.75 duplica bloques. Densidad < 0.25
+            reduce bloques a la mitad. Columnas=2^n.</small>
       </div>
     </section>
 
