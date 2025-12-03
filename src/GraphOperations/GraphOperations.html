@@ -5,9 +5,8 @@
   <meta charset="UTF-8" />
   <title>Operaciones con Grafos</title>
   <link rel="stylesheet" href="styles.css" />
-
   <style>
-    /* EXTRA: solo lo mínimo para paneles */
+    /* CSS mínimo extra (puedes conservar tu styles.css) */
     .graphs-container {
       display: flex;
       gap: 20px;
@@ -31,36 +30,48 @@
     }
 
     canvas {
+      background: #fff;
+      border: 2px inset var(--border);
       width: 100%;
       height: 100%;
-      background: #ffffff;
-      border: 2px inset var(--border);
+      display: block;
     }
 
-    .input-area {
+    .edge-input-row {
       display: flex;
-      flex-direction: column;
-      gap: 6px;
-      padding: 10px;
-      background: var(--panel);
-      border: 2px outset var(--border);
-      margin-bottom: 12px;
+      gap: 5px;
+      align-items: center;
     }
 
-    .input-area textarea {
-      width: 100%;
-      height: 70px;
-      padding: 6px;
-      border: 2px inset var(--border);
-      resize: none;
-      font-family: Tahoma;
+    .edge-input-row input {
+      width: 50px;
+      padding: 4px;
+    }
+
+    .edge-list {
+      font-size: 0.85em;
+      color: var(--muted);
+      margin-top: 4px;
+      min-height: 20px;
+    }
+
+    .edge-item {
+      display: inline-block;
+      background: var(--panel);
+      padding: 2px 6px;
+      margin: 2px;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+
+    .edge-item:hover {
+      background: var(--danger);
+      color: white;
     }
   </style>
 </head>
 
 <body>
-  <div class="background-decoration"></div>
-
   <div class="topbar">
     <div class="brand">
       <div class="logo-text">Operaciones entre Grafos</div>
@@ -72,31 +83,40 @@
   </div>
 
   <div class="container">
-
-    <!-- CONTROLES -->
     <div class="controls">
-
       <div class="form-row">
-        <label>Vértices G1:</label>
-        <input id="v1" type="text" placeholder="Ej: A,B,C" />
+        <label>Número de Vértices G1:</label>
+        <input id="v1" type="number" min="0" placeholder="Ej: 3" />
       </div>
 
       <div class="form-row">
         <label>Aristas G1:</label>
-        <input id="e1" type="text" placeholder="Ej: A-B,B-C" />
+        <div class="edge-input-row">
+          <input id="v1-from" type="text" placeholder="De" />
+          <span>→</span>
+          <input id="v1-to" type="text" placeholder="A" />
+          <button id="btnAddE1" class="btn" style="padding:4px 10px;">Agregar</button>
+        </div>
+        <div id="listE1" class="edge-list"></div>
       </div>
 
       <div class="form-row">
-        <label>Vértices G2:</label>
-        <input id="v2" type="text" placeholder="Ej: A,B,C" />
+        <label>Número de Vértices G2:</label>
+        <input id="v2" type="number" min="0" placeholder="Ej: 3" />
       </div>
 
       <div class="form-row">
         <label>Aristas G2:</label>
-        <input id="e2" type="text" placeholder="Ej: A-B,C-A" />
+        <div class="edge-input-row">
+          <input id="v2-from" type="text" placeholder="De" />
+          <span>→</span>
+          <input id="v2-to" type="text" placeholder="A" />
+          <button id="btnAddE2" class="btn" style="padding:4px 10px;">Agregar</button>
+        </div>
+        <div id="listE2" class="edge-list"></div>
       </div>
+      <hr>
 
-      <!-- OPERACIONES -->
       <button class="btn" onclick="operate('union')">Unión</button>
       <button class="btn" onclick="operate('intersect')">Intersección</button>
       <button class="btn" onclick="operate('xor')">Suma Anillo</button>
@@ -108,13 +128,11 @@
       <div style="margin-top: 20px; border-top: 1px solid var(--border); padding-top: 10px;">
         <button class="btn" onclick="saveGraphs()">Guardar</button>
         <button class="btn" onclick="loadGraphs()">Recuperar</button>
+        <button class="btn" id="printBtn" class="btn" onclick="printGraphs()">Imprimir</button>
       </div>
-
     </div>
 
-    <!-- PANELES DE GRAFOS -->
-    <div class="graphs-container">
-
+    <div class="graphs-container" id="graphsContainer" style="height:520px;">
       <div class="graph-panel">
         <div class="graph-title">GRAFO G1</div>
         <canvas id="canvas1"></canvas>
@@ -129,10 +147,12 @@
         <div class="graph-title">RESULTADO</div>
         <canvas id="canvasResult"></canvas>
       </div>
-
     </div>
   </div>
 
+  <!-- HTML2Canvas: ajusta la ruta a la ubicación real -->
+  <script src="../Assets/libs/html2canvas.min.js"></script>
+  <!-- Tu lógica de app (ver app.js abajo) -->
   <script src="app.js"></script>
 </body>
 

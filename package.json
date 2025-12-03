@@ -1,5 +1,5 @@
 {
-  "name": "cienciasproject",
+  "name": "proyectociencias",
   "version": "1.0.0",
   "description": "Aplicación de Ciencias II - Proyecto Universitario",
   "main": "src/main.js",
@@ -18,7 +18,7 @@
     "universidad",
     "algoritmos"
   ],
-  "author": "Brayan Aguirre",
+  "author": "Brayan Aguirre & Josep Leon",
   "license": "ISC",
   "type": "commonjs",
   "bugs": {
@@ -26,13 +26,13 @@
   },
   "homepage": "https://github.com/DrBider-dev/CienciasProject#readme",
   "devDependencies": {
-    "electron": "^39.2.3",
+    "electron": "^33.0.0",
     "electron-builder": "^26.0.12"
   },
   "build": {
-    "appId": "com.drbider.hashseek",
-    "productName": "Hash&Seek",
-    "copyright": "© 2025 Brayan Aguirre",
+    "appId": "com.drbider.proyectociencias",
+    "productName": "Proyecto Ciencias",
+    "copyright": "© 2025 Brayan Aguirre & Josep Leon",
     "directories": {
       "output": "dist",
       "buildResources": "build"
@@ -68,7 +68,7 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "Hash&Seek",
+      "shortcutName": "Proyecto Ciencias",
       "deleteAppDataOnUninstall": false,
       "artifactName": "${productName}-Setup-${version}.${ext}"
     },

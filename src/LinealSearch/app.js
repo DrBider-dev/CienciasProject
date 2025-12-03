@@ -23,7 +23,7 @@
   const fileInput = document.getElementById('fileInput');
   const cellsWrap = document.getElementById('cellsWrap');
   const btnBack = document.getElementById('btnBack');
-  const btnPrint = document.getElementById('btnPrint');
+
 
 
   // Utilidades
@@ -101,40 +101,11 @@
     }
     if (freeIndex === -1) return showWarn('No se pudo insertar, la tabla está llena');
 
-    // insertar y ordenar
     array[freeIndex] = value;
     sortWithNulls(array);
     render();
   });
 
-  //Imprimir
-  btnPrint.addEventListener('click', async () => {
-    const el = document.getElementById('cellsWrap');
-    if (!el) return;
-
-    try {
-      const canvas = await html2canvas(el, { backgroundColor: '#ffffff', scale: 2 });
-      const dataURL = canvas.toDataURL('image/png');
-
-      const result = await window.electronAPI.printImage(dataURL);
-
-      console.log(result);
-
-      if (result.status === "printed") {
-        alert("Impreso correctamente");
-      } else if (result.status === "saved") {
-        alert("Guardado como PDF en: " + result.filePath);
-      } else if (result.status === "cancelled") {
-        alert("Guardado cancelado");
-      } else {
-        alert("Error al imprimir/guardar");
-      }
-
-    } catch (err) {
-      console.error(err);
-      alert("Error al generar imagen del arreglo");
-    }
-  });
 
   // Generar pasos de búsqueda lineal
   function linearSearchSteps(value) {

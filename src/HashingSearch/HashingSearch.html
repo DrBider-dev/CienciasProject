@@ -65,31 +65,18 @@
       <div class="form-row">
         <button class="btn" id="insertBtn">Insertar</button>
         <button class="btn" id="searchBtn">Buscar</button>
-        <button class="btn" id="deleteBtn">Eliminar</button>
+        <div class="visual">
+          <div class="cells-wrap" id="cellsWrap">
+            <!-- Celdas renderizadas por JS -->
+            <div style="width:8px;"></div>
+            <div style="color:var(--muted); padding: 24px;">No hay estructura: crea para comenzar.</div>
+          </div>
+        </div>
+
       </div>
 
-      <div class="form-row">
-        <button class="btn outline" id="loadBtn">Recuperar</button>
-        <button class="btn outline" id="saveBtn">Guardar</button>
-        <button class="btn outline" id="btnPrint">Imprimir</button>
-        <!-- input file escondido para recuperar -->
-        <input id="fileInput" type="file" accept=".mod" style="display:none;">
-      </div>
-    </div>
-
-    <!-- Visual abajo -->
-    <div class="visual">
-      <div class="cells-wrap" id="cellsWrap">
-        <!-- Celdas renderizadas por JS -->
-        <div style="width:8px;"></div>
-        <div style="color:var(--muted); padding: 24px;">No hay estructura: crea para comenzar.</div>
-      </div>
-    </div>
-
-  </div>
-
-  <script src="../Assets/libs/html2canvas.min.js"></script>
-  <script src="app.js"></script>
+      <script src="../Assets/libs/html2canvas.min.js"></script>
+      <script src="app.js"></script>
 </body>
 
 </html>

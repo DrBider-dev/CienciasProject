@@ -5,24 +5,89 @@ backBtn.addEventListener("click", () => {
 });
 
 /* ===================
+   STATE
+   =================== */
+
+let edgesListG1 = [];
+let edgesListG2 = [];
+
+/* ===================
    PARSER DE GRAFOS
    =================== */
 
-function parseVertices(text) {
-  if (!text.trim()) return [];
-  return text.split(",").map(v => v.trim());
+function generateVertexNames(count) {
+  const names = [];
+  for (let i = 0; i < count; i++) {
+    let name = '';
+    let n = i;
+    while (n >= 0) {
+      name = String.fromCharCode(65 + (n % 26)) + name;
+      n = Math.floor(n / 26) - 1;
+    }
+    names.push(name);
+  }
+  return names;
 }
 
-function parseEdges(text) {
-  if (!text.trim()) return [];
-  return text.split(",").map(e => {
-    const [a, b] = e.split("-").map(x => x.trim());
-    return { a, b };
-  });
+function parseVertices(input) {
+  const count = parseInt(input, 10);
+  if (!isNaN(count)) {
+    return generateVertexNames(count);
+  }
+  if (!input.trim()) return [];
+  return input.split(",").map(v => v.trim());
 }
 
 function makeGraph(v, e) {
   return { vertices: v, edges: e };
+}
+
+/* ===================
+   EDGE MANAGEMENT
+   =================== */
+
+function addEdge(graphId, from, to) {
+  from = from.trim().toUpperCase();
+  to = to.trim().toUpperCase();
+
+  if (!from || !to) {
+    alert('Por favor ingrese ambos vértices');
+    return;
+  }
+
+  const edgesList = graphId === 1 ? edgesListG1 : edgesListG2;
+  edgesList.push({ a: from, b: to });
+
+  renderEdgeList(graphId);
+  updateGraphs();
+
+  // Clear inputs
+  const fromInput = document.getElementById(`v${graphId}-from`);
+  const toInput = document.getElementById(`v${graphId}-to`);
+  fromInput.value = '';
+  toInput.value = '';
+  fromInput.focus();
+}
+
+function removeEdge(graphId, index) {
+  const edgesList = graphId === 1 ? edgesListG1 : edgesListG2;
+  edgesList.splice(index, 1);
+  renderEdgeList(graphId);
+  updateGraphs();
+}
+
+function renderEdgeList(graphId) {
+  const listEl = document.getElementById(`listE${graphId}`);
+  const edgesList = graphId === 1 ? edgesListG1 : edgesListG2;
+
+  if (edgesList.length === 0) {
+    listEl.innerHTML = '<span style="color:var(--muted);">Sin aristas</span>';
+    return;
+  }
+
+  listEl.innerHTML = edgesList.map((e, i) =>
+    `<span class="edge-item" onclick="removeEdge(${graphId}, ${i})" title="Click para eliminar">${e.a}-${e.b}</span>`
+  ).join(' ');
 }
 
 /* ===================
@@ -226,22 +291,50 @@ function drawGraph(canvas, graph) {
 
 function updateGraphs() {
   const v1 = document.getElementById('v1');
-  const e1 = document.getElementById('e1');
   const v2 = document.getElementById('v2');
-  const e2 = document.getElementById('e2');
 
-  const G1 = makeGraph(parseVertices(v1.value), parseEdges(e1.value));
-  const G2 = makeGraph(parseVertices(v2.value), parseEdges(e2.value));
+  const G1 = makeGraph(parseVertices(v1.value), edgesListG1);
+  const G2 = makeGraph(parseVertices(v2.value), edgesListG2);
 
   drawGraph(document.getElementById("canvas1"), G1);
   drawGraph(document.getElementById("canvas2"), G2);
 }
 
-['v1', 'e1', 'v2', 'e2'].forEach(id => {
+['v1', 'v2'].forEach(id => {
   document.getElementById(id).addEventListener('input', updateGraphs);
 });
 
-window.addEventListener('load', updateGraphs);
+// Add edge button listeners
+document.getElementById('btnAddE1').addEventListener('click', () => {
+  const from = document.getElementById('v1-from').value;
+  const to = document.getElementById('v1-to').value;
+  addEdge(1, from, to);
+});
+
+document.getElementById('btnAddE2').addEventListener('click', () => {
+  const from = document.getElementById('v2-from').value;
+  const to = document.getElementById('v2-to').value;
+  addEdge(2, from, to);
+});
+
+// Enter key support
+['v1-from', 'v1-to'].forEach(id => {
+  document.getElementById(id).addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') document.getElementById('btnAddE1').click();
+  });
+});
+
+['v2-from', 'v2-to'].forEach(id => {
+  document.getElementById(id).addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') document.getElementById('btnAddE2').click();
+  });
+});
+
+window.addEventListener('load', () => {
+  updateGraphs();
+  renderEdgeList(1);
+  renderEdgeList(2);
+});
 
 /* ===================
    MAIN
@@ -250,12 +343,12 @@ window.addEventListener('load', updateGraphs);
 function operate(type) {
   const G1 = makeGraph(
     parseVertices(v1.value),
-    parseEdges(e1.value)
+    edgesListG1
   );
 
   const G2 = makeGraph(
     parseVertices(v2.value),
-    parseEdges(e2.value)
+    edgesListG2
   );
 
   let R = null;
@@ -282,9 +375,9 @@ function operate(type) {
 async function saveGraphs() {
   const data = {
     v1: document.getElementById('v1').value,
-    e1: document.getElementById('e1').value,
     v2: document.getElementById('v2').value,
-    e2: document.getElementById('e2').value
+    edgesG1: edgesListG1,
+    edgesG2: edgesListG2
   };
 
   const json = JSON.stringify(data, null, 2);
@@ -312,12 +405,47 @@ async function loadGraphs() {
   try {
     const data = JSON.parse(result.content);
     document.getElementById('v1').value = data.v1 || "";
-    document.getElementById('e1').value = data.e1 || "";
     document.getElementById('v2').value = data.v2 || "";
-    document.getElementById('e2').value = data.e2 || "";
+
+    edgesListG1 = data.edgesG1 || [];
+    edgesListG2 = data.edgesG2 || [];
+
+    renderEdgeList(1);
+    renderEdgeList(2);
     updateGraphs();
     alert("Grafos recuperados correctamente.");
   } catch (e) {
     alert("El archivo no tiene un formato válido.");
   }
+}
+
+/* ===================
+   PRINT
+   =================== */
+
+function printGraphs() {
+  const element = document.getElementById('graphsContainer');
+  if (!element) return;
+
+  html2canvas(element).then(async canvas => {
+    const imgData = canvas.toDataURL('image/png');
+
+    // Use the exposed Electron API to print
+    const result = await window.electronAPI.printImage(imgData);
+
+    if (result.status === 'printed') {
+      // Success (silent or dialog)
+      console.log('Print success');
+    } else if (result.status === 'cancelled') {
+      console.log('Print cancelled');
+    } else if (result.status === 'saved') {
+      alert('Guardado como PDF en: ' + result.filePath);
+    } else if (result.status === 'error') {
+      console.error('Print error:', result.message);
+      alert('Error al imprimir: ' + result.message);
+    }
+  }).catch(err => {
+    console.error("Error generating image for print:", err);
+    alert("Error al generar la imagen para imprimir.");
+  });
 }

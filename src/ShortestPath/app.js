@@ -11,7 +11,6 @@ const delayInput = document.getElementById("delayInput");
 const matrixDisplay = document.getElementById("matrixDisplay");
 const logEl = document.getElementById("log");
 const runFloydBtn = document.getElementById("runFloyd");
-const drawBtn = document.getElementById("drawBtn");
 const resetBtn = document.getElementById("resetBtn");
 const backBtn = document.getElementById("backBtn");
 
@@ -189,7 +188,6 @@ async function floydWarshall() {
 }
 
 /* ---------- event bindings ---------- */
-drawBtn.addEventListener("click", () => drawGraph());
 resetBtn.addEventListener("click", () => { logEl.innerHTML = ''; matrixDisplay.textContent = '—'; });
 
 
@@ -210,7 +208,6 @@ function disableControls(dis) {
   verticesInput.disabled = dis;
   edgesInput.disabled = dis;
   runFloydBtn.disabled = dis;
-  drawBtn.disabled = dis;
   resetBtn.disabled = dis;
   delayInput.disabled = dis;
 }
