@@ -13,7 +13,7 @@
     <div class="brand">
       <!-- Si tienes la imagen BinarySearchTitle.png ponla aquí -->
       <!--<img src="assets/BinarySearchTitle.png" alt="BinarySearch" class="logo-img" />-->
-      <div class="logo-text">Busqueda Secuencial externa</div>
+      <div class="logo-text">Busqueda Hashing Externa</div>
 
     </div>
 
@@ -25,10 +25,19 @@
   <main class="container">
     <section class="controls">
       <div class="form-row">
-        <label for="sizeArray">Cantidad inicial de bloques:</label>
-        <input id="sizeArray" type="number" min="1" value="2" />
-        <label for="sizeArray">Tamaño del bloque:</label>
-        <input id="sizeArray" type="number" min="1" value="2" />
+        <label for="hashSelect">Método:</label>
+        <select id="hashSelect">
+          <option>H. Mod</option>
+          <option>H. Cuadrado</option>
+          <option>H. Plegamiento</option>
+          <option>H. Truncamiento</option>
+          <option>H. Conversion de Base</option>
+        </select>
+      </div>
+
+      <div class="form-row">
+        <label for="sizeArray">Tamaño del Arreglo:</label>
+        <input id="sizeArray" type="number" min="1" value="10" />
         <button id="btnCreate" class="btn">Crear</button>
       </div>
 
@@ -54,8 +63,7 @@
       </div>
 
       <div class="notes">
-        <small>Animación de búsqueda/descarte. Claves únicas. Archivo: primera línea = longitud de clave (o vacío),
-          luego cada línea valor o vacío para null.</small>
+        <small>Hashing Modulo (Clave % Bloques). Inserción secuencial en bloque. Capacidad fija.</small>
       </div>
     </section>
 

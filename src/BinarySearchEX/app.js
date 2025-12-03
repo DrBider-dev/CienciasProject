@@ -3,6 +3,7 @@
   let matrix = null;          // matriz principal
   let maxKeys = null;         // tamaño máximo de claves permitido
   let keyLength = null;       // longitud de cada clave
+  const MAX_VISIBLE_ROWS = 8; // Constante para visualización parcial
 
   // DOM
   const sizeArrayEl = document.getElementById('sizeArray');
@@ -11,6 +12,8 @@
   const btnCreate = document.getElementById('btnCreate');
   const btnInsert = document.getElementById('btnInsert');
   const btnSearch = document.getElementById('btnSearch');
+  const btnDelete = document.getElementById('btnDelete');
+
   const cellsWrap = document.getElementById('cellsWrap');
   const btnSave = document.getElementById('btnSave');
   const btnOpen = document.getElementById('btnOpen');
@@ -47,6 +50,12 @@
       }
     }
     return mat;
+  }
+
+  function reorganizeMatrix() {
+    const values = flattenMatrix(matrix);
+    const { filas, columnas } = computeDimensions(maxKeys);
+    matrix = rebuildMatrix(values, filas, columnas);
   }
 
   // ---- Render matriz visualmente por columnas ----
@@ -134,7 +143,166 @@
     }
   }
 
+  // ---- Helper para obtener bloque DOM ----
+  function getColBlockForRealIndex(realCol) {
+    if (!matrix) return null;
 
+    // Caso normal
+    if (maxKeys < 100) {
+      return cellsWrap.children[realCol] || null;
+    }
+
+    // Caso visualización parcial
+    const MAX = MAX_VISIBLE_ROWS;
+    const columnas = matrix[0].length;
+    const visibleCols = [];
+    for (let i = 0; i < MAX; i++) {
+      if (i === MAX - 1) visibleCols.push(columnas - 1);
+      else visibleCols.push(Math.floor(i * (columnas - 1) / (MAX - 1)));
+    }
+
+    const visibleIndex = visibleCols.indexOf(realCol);
+    if (visibleIndex === -1) return null;
+    return cellsWrap.children[visibleIndex] || null;
+  }
+
+  // ---- Función Unificada de Búsqueda ----
+  async function findValue(target, isDelete = false) {
+    const filas = matrix.length;
+    const columnas = matrix[0].length;
+
+    document.querySelectorAll('.cell').forEach(c =>
+      c.classList.remove('highlight-found', 'highlight-check', 'highlight-last')
+    );
+
+    let left = 0;
+    let right = columnas - 1;
+
+    while (left <= right) {
+      const mid = Math.floor((left + right) / 2);
+      const colBlock = getColBlockForRealIndex(mid);
+      const animateThisColumn = !!colBlock;
+
+      const lastR = filas - 1;
+      const lastVal = matrix[lastR][mid];
+      const firstVal = matrix[0][mid];
+
+      // Animar revisión de columna
+      if (animateThisColumn) {
+        if (colBlock) {
+          colBlock.style.borderColor = 'var(--accent)';
+          await sleep(450);
+          colBlock.style.borderColor = '';
+
+          const visibleCells = colBlock.querySelectorAll('.cell');
+          if (visibleCells.length > 0) {
+            const lastVisible = visibleCells[visibleCells.length - 1];
+            lastVisible.classList.add('highlight-last');
+            await sleep(450);
+            lastVisible.classList.remove('highlight-last');
+          }
+        }
+      }
+
+      // --- Lógica de descarte de columnas ---
+      if (lastVal === null) {
+        if (firstVal === null) {
+          right = mid - 1;
+          continue;
+        }
+        if (target > firstVal) {
+          // Simplificación: buscamos en esta columna.
+        } else if (target < firstVal) {
+          right = mid - 1;
+          continue;
+        }
+      } else {
+        if (target > lastVal) {
+          left = mid + 1;
+          continue;
+        }
+        if (target < firstVal) {
+          right = mid - 1;
+          continue;
+        }
+      }
+
+      // --- Búsqueda Lineal dentro de la columna ---
+      if (animateThisColumn) {
+        for (let r = 0; r < filas; r++) {
+          let cell = null;
+
+          if (maxKeys < 100) {
+            cell = colBlock.children[r + 1];
+          } else {
+            const MAX = MAX_VISIBLE_ROWS;
+            if (r < Math.min(MAX, filas)) {
+              cell = colBlock.children[r + 1];
+            }
+          }
+
+          if (cell) cell.classList.add('highlight-check');
+          await sleep(350);
+
+          if (matrix[r][mid] === target) {
+            if (cell) {
+              cell.classList.remove('highlight-check');
+              cell.classList.add('highlight-found');
+            } else {
+              // --- CASO: Clave encontrada pero NO visible ---
+              // Mostrar la clave en la última posición visible de este bloque
+              const visibleCells = colBlock.querySelectorAll('.cell');
+              if (visibleCells.length > 0) {
+                const lastVisibleCell = visibleCells[visibleCells.length - 1];
+
+                // Guardar valor original para restaurar si fuera necesario (aunque en delete se borra)
+                // Para visualización, simplemente sobrescribimos visualmente
+                const originalText = lastVisibleCell.querySelector('.val').innerText;
+
+                lastVisibleCell.querySelector('.val').innerText = target;
+                lastVisibleCell.classList.add('highlight-found');
+
+                // Opcional: indicar visualmente que es un "proxy"
+                lastVisibleCell.style.border = "2px dashed var(--accent)";
+              }
+            }
+
+            // Mostrar mensaje detallado
+            await sleep(100); // Breve pausa para ver el highlight
+            alert(`Encontrado en Bloque ${mid + 1}, Posición ${r + 1}`);
+
+            if (isDelete) {
+              matrix[r][mid] = null;
+              reorganizeMatrix();
+              await new Promise(r => requestAnimationFrame(r));
+              render();
+            }
+            return { found: true, r, c: mid };
+          }
+
+          if (cell) cell.classList.remove('highlight-check');
+        }
+      } else {
+        // Búsqueda sin animación (columna no visible)
+        for (let r = 0; r < filas; r++) {
+          if (matrix[r][mid] === target) {
+            alert(`Encontrado en Bloque ${mid + 1}, Posición ${r + 1}`);
+            if (isDelete) {
+              matrix[r][mid] = null;
+              reorganizeMatrix();
+              await new Promise(r => requestAnimationFrame(r));
+              render();
+            }
+            return { found: true, r, c: mid };
+          }
+        }
+      }
+
+      return { found: false };
+    }
+
+    return { found: false };
+  }
 
 
   // ---- Crear matriz vacía ----
@@ -161,20 +329,14 @@
     const value = parseInt(input, 10);
     if (isNaN(value)) return showWarn("Clave inválida");
 
-    // Extraemos todas las claves existentes
     let values = flattenMatrix(matrix);
 
-    // Verificar duplicado
     if (values.includes(value)) return showWarn("La clave ya existe");
-
-    // Verificar espacio disponible
     if (values.length >= maxKeys) return showWarn("La matriz está llena");
 
-    // Insertar ordenadamente
     values.push(value);
     values.sort((a, b) => a - b);
 
-    // Reconstruir matriz
     const { filas, columnas } = computeDimensions(maxKeys);
     matrix = rebuildMatrix(values, filas, columnas);
 
@@ -529,10 +691,6 @@
   btnBack.addEventListener('click', () => {
     window.electronAPI.navigateTo("src/Index/index.html");
   });
-
-
-
-
 
   render();
 

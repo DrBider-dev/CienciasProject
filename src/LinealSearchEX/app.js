@@ -3,6 +3,7 @@
   let matrix = null;          // matriz principal
   let maxKeys = null;         // tamaño máximo de claves permitido
   let keyLength = null;       // longitud de cada clave
+  const MAX_VISIBLE_ROWS = 8; // Constante para visualización parcial
 
   // DOM
   const sizeArrayEl = document.getElementById('sizeArray');
@@ -11,6 +12,7 @@
   const btnCreate = document.getElementById('btnCreate');
   const btnInsert = document.getElementById('btnInsert');
   const btnSearch = document.getElementById('btnSearch');
+  const btnDelete = document.getElementById('btnDelete');
   const cellsWrap = document.getElementById('cellsWrap');
   const btnSave = document.getElementById('btnSave');
   const btnOpen = document.getElementById('btnOpen');
@@ -47,6 +49,12 @@
       }
     }
     return mat;
+  }
+
+  function reorganizeMatrix() {
+    const values = flattenMatrix(matrix);
+    const { filas, columnas } = computeDimensions(maxKeys);
+    matrix = rebuildMatrix(values, filas, columnas);
   }
 
   // ---- Render matriz visualmente por columnas ----
@@ -134,7 +142,147 @@
     }
   }
 
+  // ---- Helper para obtener bloque DOM ----
+  function getColBlockForRealIndex(realCol) {
+    if (!matrix) return null;
 
+    // Caso normal
+    if (maxKeys < 100) {
+      return cellsWrap.children[realCol] || null;
+    }
+
+    // Caso visualización parcial
+    const MAX = MAX_VISIBLE_ROWS;
+    const columnas = matrix[0].length;
+    const visibleCols = [];
+    for (let i = 0; i < MAX; i++) {
+      if (i === MAX - 1) visibleCols.push(columnas - 1);
+      else visibleCols.push(Math.floor(i * (columnas - 1) / (MAX - 1)));
+    }
+
+    const visibleIndex = visibleCols.indexOf(realCol);
+    if (visibleIndex === -1) return null;
+    return cellsWrap.children[visibleIndex] || null;
+  }
+
+  // ---- Función Unificada de Búsqueda Lineal ----
+  async function findValue(target, isDelete = false) {
+    const filas = matrix.length;
+    const columnas = matrix[0].length;
+
+    document.querySelectorAll('.cell').forEach(c =>
+      c.classList.remove('highlight-found', 'highlight-check', 'highlight-last')
+    );
+
+    // Recorrer columnas secuencialmente
+    for (let c = 0; c < columnas; c++) {
+      const colBlock = getColBlockForRealIndex(c);
+      const animateThisColumn = !!colBlock;
+
+      const lastR = filas - 1;
+      const lastVal = matrix[lastR][c];
+
+      // Animar revisión de columna
+      if (animateThisColumn) {
+        if (colBlock) {
+          colBlock.style.borderColor = 'var(--accent)';
+          await sleep(450);
+          colBlock.style.borderColor = '';
+
+          const visibleCells = colBlock.querySelectorAll('.cell');
+          if (visibleCells.length > 0) {
+            const lastVisible = visibleCells[visibleCells.length - 1];
+            lastVisible.classList.add('highlight-last');
+            await sleep(450);
+            lastVisible.classList.remove('highlight-last');
+          }
+        }
+      }
+
+      // --- Lógica de descarte de columnas ---
+      // Si lastVal es null, el target PODRÍA estar aquí (si es menor que el siguiente valor, o si es el último bloque).
+      // Si target > lastVal, NO puede estar aquí (porque está ordenado).
+
+      if (lastVal !== null && target > lastVal) {
+        continue; // Saltar al siguiente bloque
+      }
+
+      // Si llegamos aquí, el target PODRÍA estar en este bloque.
+      // Buscamos secuencialmente dentro del bloque.
+
+      if (animateThisColumn) {
+        for (let r = 0; r < filas; r++) {
+          let cell = null;
+
+          if (maxKeys < 100) {
+            cell = colBlock.children[r + 1];
+          } else {
+            const MAX = MAX_VISIBLE_ROWS;
+            if (r < Math.min(MAX, filas)) {
+              cell = colBlock.children[r + 1];
+            }
+          }
+
+          if (cell) cell.classList.add('highlight-check');
+          await sleep(350);
+
+          if (matrix[r][c] === target) {
+            if (cell) {
+              cell.classList.remove('highlight-check');
+              cell.classList.add('highlight-found');
+            } else {
+              // --- CASO: Clave encontrada pero NO visible ---
+              const visibleCells = colBlock.querySelectorAll('.cell');
+              if (visibleCells.length > 0) {
+                const lastVisibleCell = visibleCells[visibleCells.length - 1];
+                lastVisibleCell.querySelector('.val').innerText = target;
+                lastVisibleCell.classList.add('highlight-found');
+                lastVisibleCell.style.border = "2px dashed var(--accent)";
+              }
+            }
+
+            // Mostrar mensaje detallado
+            await sleep(100);
+            alert(`Encontrado en Bloque ${c + 1}, Posición ${r + 1}`);
+
+            if (isDelete) {
+              matrix[r][c] = null;
+              reorganizeMatrix();
+              await new Promise(r => requestAnimationFrame(r));
+              render();
+            }
+            return { found: true, r, c };
+          }
+
+          if (cell) cell.classList.remove('highlight-check');
+        }
+      } else {
+        // Búsqueda sin animación (columna no visible)
+        for (let r = 0; r < filas; r++) {
+          if (matrix[r][c] === target) {
+            alert(`Encontrado en Bloque ${c + 1}, Posición ${r + 1}`);
+            if (isDelete) {
+              matrix[r][c] = null;
+              reorganizeMatrix();
+              await new Promise(r => requestAnimationFrame(r));
+              render();
+            }
+            return { found: true, r, c };
+          }
+        }
+      }
+
+      // Si buscamos en este bloque y no lo encontramos...
+      // Como los bloques están ordenados, si lastVal === null (bloque incompleto) y no lo encontramos, NO está más adelante.
+      // Si lastVal !== null y target <= lastVal y no lo encontramos, NO está más adelante (porque los siguientes serán > lastVal).
+      // Por lo tanto, si buscamos en un bloque y fallamos, podemos detener la búsqueda global.
+      alert("Clave no encontrada");
+      return { found: false };
+    }
+
+    alert("Clave no encontrada");
+    return { found: false };
+  }
 
 
   // ---- Crear matriz vacía ----
@@ -161,20 +309,14 @@
     const value = parseInt(input, 10);
     if (isNaN(value)) return showWarn("Clave inválida");
 
-    // Extraemos todas las claves existentes
     let values = flattenMatrix(matrix);
 
-    // Verificar duplicado
     if (values.includes(value)) return showWarn("La clave ya existe");
-
-    // Verificar espacio disponible
     if (values.length >= maxKeys) return showWarn("La matriz está llena");
 
-    // Insertar ordenadamente
     values.push(value);
     values.sort((a, b) => a - b);
 
-    // Reconstruir matriz
     const { filas, columnas } = computeDimensions(maxKeys);
     matrix = rebuildMatrix(values, filas, columnas);
 
@@ -482,10 +624,6 @@
   btnBack.addEventListener('click', () => {
     window.electronAPI.navigateTo("src/Index/index.html");
   });
-
-
-
-
 
   render();
 

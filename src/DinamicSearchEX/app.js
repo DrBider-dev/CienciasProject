@@ -1,16 +1,25 @@
 (() => {
 
-  let matrix = null;          // matriz principal
-  let maxKeys = null;         // tamaño máximo de claves permitido
-  let keyLength = null;       // longitud de cada clave
+  // ---- Estado Global por Método ----
+  const state = {
+    'H. Mod': { matrix: null, maxKeys: null, keyLength: null, visibleCols: [] },
+    'H. Cuadrado': { matrix: null, maxKeys: null, keyLength: null, visibleCols: [] },
+    'H. Plegamiento': { matrix: null, maxKeys: null, keyLength: null, visibleCols: [] },
+    'H. Truncamiento': { matrix: null, maxKeys: null, keyLength: null, visibleCols: [] },
+    'H. Conversion de Base': { matrix: null, maxKeys: null, keyLength: null, visibleCols: [] }
+  };
+
+  const MAX_VISIBLE_ROWS = 8; // Constante para visualización parcial
 
   // DOM
+  const hashSelect = document.getElementById('hashSelect');
   const sizeArrayEl = document.getElementById('sizeArray');
   const keyLengthEl = document.getElementById('keyLength');
   const txtKeyEl = document.getElementById('txtKey');
   const btnCreate = document.getElementById('btnCreate');
   const btnInsert = document.getElementById('btnInsert');
   const btnSearch = document.getElementById('btnSearch');
+  const btnDelete = document.getElementById('btnDelete');
   const cellsWrap = document.getElementById('cellsWrap');
   const btnSave = document.getElementById('btnSave');
   const btnOpen = document.getElementById('btnOpen');
@@ -134,29 +143,47 @@
     }
   }
 
+  // ---- Helper DOM ----
+  function getColBlockForRealIndex(realCol) {
+    const currState = getCurrentState();
+    if (!currState.matrix) return null;
 
+    const visibleIndex = currState.visibleCols.indexOf(realCol);
+    if (visibleIndex === -1) return null;
+    return cellsWrap.children[visibleIndex] || null;
+  }
 
+  // ---- Eventos UI ----
+  hashSelect.addEventListener('change', () => {
+    render();
+  });
 
-  // ---- Crear matriz vacía ----
+  // ---- Crear ----
   btnCreate.addEventListener('click', () => {
-    maxKeys = parseInt(sizeArrayEl.value, 10);
-    keyLength = parseInt(keyLengthEl.value, 10);
+    const currState = getCurrentState();
+    const maxKeys = parseInt(sizeArrayEl.value, 10);
+    const keyLength = parseInt(keyLengthEl.value, 10);
 
     if (isNaN(maxKeys) || maxKeys <= 0) return showWarn("Tamaño inválido");
     if (isNaN(keyLength) || keyLength <= 0) return showWarn("Debe definir tamaño de clave");
 
-    const { filas, columnas } = computeDimensions(maxKeys);
+    currState.maxKeys = maxKeys;
+    currState.keyLength = keyLength;
 
-    matrix = Array.from({ length: filas }, () => Array(columnas).fill(null));
+    const { filas, columnas } = computeDimensions(maxKeys);
+    currState.matrix = Array.from({ length: filas }, () => Array(columnas).fill(null));
+    initVisibleCols(currState, columnas);
+
     render();
   });
 
-  // ---- Insertar clave ordenada ----
-  btnInsert.addEventListener('click', () => {
-    if (!matrix) return showWarn("Primero crea la estructura");
+  // ---- Insertar ----
+  btnInsert.addEventListener('click', async () => {
+    const currState = getCurrentState();
+    if (!currState.matrix) return showWarn(`Primero crea la estructura para ${hashSelect.value}`);
 
     const input = txtKeyEl.value.trim();
-    if (input.length !== keyLength) return showWarn(`La clave debe tener ${keyLength} dígitos`);
+    if (input.length !== currState.keyLength) return showWarn(`La clave debe tener ${currState.keyLength} dígitos`);
 
     const value = parseInt(input, 10);
     if (isNaN(value)) return showWarn("Clave inválida");
@@ -530,10 +557,7 @@
     window.electronAPI.navigateTo("src/Index/index.html");
   });
 
-
-
-
-
+  // Inicializar render
   render();
 
 })();
