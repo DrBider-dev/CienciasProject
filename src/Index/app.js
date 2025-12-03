@@ -10,6 +10,7 @@ const dinamicoTexts = {
   binarySearchEX: "Búsqueda Binaria (Externa)<br>Versión adaptada a bloques externos, aplicando dividir y conquistar sobre índices o bloques.",
   dinamicSearchEX: "Búsqueda Dinámica<br>Diseñada para estructuras que cambian en tiempo real, ajustando los índices dinámicamente.",
   hashingSearchEX: "Búsqueda Hashing (Externa)<br>Utiliza una función hash (Modulo) para distribuir claves en bloques externos, permitiendo inserción y búsqueda directa.",
+  indexBlocksEX: "Index Blocks<br>Visualización de bloques de datos e índices, con soporte para índices multinivel.",
   graphOperations: "Operaciones con Grafos<br>Manipulación y análisis de grafos, incluyendo combinaciones como el producto cartesiano de grafos.",
   shortestPath: "Camino Más Corto<br>Algoritmos para encontrar la ruta más corta entre nodos en un grafo, como Dijkstra o Floyd."
 };
@@ -50,6 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
       binarySearchEX: "src/BinarySearchEX/binarySearchEX.html",
       dinamicSearchEX: "src/DinamicSearchEX/DinamicSearchEX.html",
       hashingSearchEX: "src/HashingSearchEX/hashingSearchEX.html",
+      indexBlocksEX: "src/indexblocksEX/index.html",
       graphOperations: "src/GraphOperations/GraphOperations.html",
       shortestPath: "src/ShortestPath/ShortestPath.html"
     };

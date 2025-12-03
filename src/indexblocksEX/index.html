@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Index Blocks EX</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <header class="topbar">
+        <div class="brand">
+            <div class="logo-text">Representación de Bloques e Índices</div>
+        </div>
+        <div class="actions">
+            <button id="backBtn" class="link">‹ Volver</button>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="controls">
+            <div class="input-group">
+                <label for="recordLength">Longitud Registro (R):</label>
+                <input type="number" id="recordLength" placeholder="Ej: 100">
+            </div>
+            <div class="input-group">
+                <label for="blockSize">Tamaño Bloque (B):</label>
+                <input type="number" id="blockSize" placeholder="Ej: 512">
+            </div>
+            <div class="input-group">
+                <label for="recordCount">Cantidad Registros (r):</label>
+                <input type="number" id="recordCount" placeholder="Ej: 1000">
+            </div>
+            <div class="input-group">
+                <label for="indexType">Tipo de Índice:</label>
+                <select id="indexType">
+                    <option value="primary">Primario</option>
+                    <option value="secondary">Secundario</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label for="levelType">Niveles:</label>
+                <select id="levelType">
+                    <option value="one">Un Nivel</option>
+                    <option value="multi">Multinivel</option>
+                </select>
+            </div>
+            <button id="createBtn">Crear</button>
+        </div>
+
+        <div id="results" class="results-panel">
+            <!-- Results will be shown here -->
+        </div>
+
+        <div class="visualization">
+            <div id="indexPanel" class="panel">
+                <h2>Índices</h2>
+                <div id="indexCanvas" class="canvas"></div>
+            </div>
+            <div id="dataPanel" class="panel">
+                <h2>Registros de Datos</h2>
+                <div id="dataCanvas" class="canvas"></div>
+            </div>
+        </div>
+    </div>
+    <script src="app.js"></script>
+</body>
+
+</html>
