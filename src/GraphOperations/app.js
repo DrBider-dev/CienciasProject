@@ -289,6 +289,31 @@ function drawGraph(canvas, graph) {
    REAL-TIME UPDATE
    =================== */
 
+function updateVertexDropdowns(graphId) {
+  const vInput = document.getElementById(`v${graphId}`);
+  const vertices = parseVertices(vInput.value);
+
+  const fromSelect = document.getElementById(`v${graphId}-from`);
+  const toSelect = document.getElementById(`v${graphId}-to`);
+
+  // Clear existing options except placeholder
+  fromSelect.innerHTML = '<option value="">Seleccionar</option>';
+  toSelect.innerHTML = '<option value="">Seleccionar</option>';
+
+  // Add vertex options
+  vertices.forEach(v => {
+    const optFrom = document.createElement('option');
+    optFrom.value = v;
+    optFrom.textContent = v;
+    fromSelect.appendChild(optFrom);
+
+    const optTo = document.createElement('option');
+    optTo.value = v;
+    optTo.textContent = v;
+    toSelect.appendChild(optTo);
+  });
+}
+
 function updateGraphs() {
   const v1 = document.getElementById('v1');
   const v2 = document.getElementById('v2');
@@ -298,6 +323,10 @@ function updateGraphs() {
 
   drawGraph(document.getElementById("canvas1"), G1);
   drawGraph(document.getElementById("canvas2"), G2);
+
+  // Update dropdowns when vertex count changes
+  updateVertexDropdowns(1);
+  updateVertexDropdowns(2);
 }
 
 ['v1', 'v2'].forEach(id => {
@@ -315,19 +344,6 @@ document.getElementById('btnAddE2').addEventListener('click', () => {
   const from = document.getElementById('v2-from').value;
   const to = document.getElementById('v2-to').value;
   addEdge(2, from, to);
-});
-
-// Enter key support
-['v1-from', 'v1-to'].forEach(id => {
-  document.getElementById(id).addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') document.getElementById('btnAddE1').click();
-  });
-});
-
-['v2-from', 'v2-to'].forEach(id => {
-  document.getElementById(id).addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') document.getElementById('btnAddE2').click();
-  });
 });
 
 window.addEventListener('load', () => {

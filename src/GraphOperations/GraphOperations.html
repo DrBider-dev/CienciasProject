@@ -43,8 +43,8 @@
       align-items: center;
     }
 
-    .edge-input-row input {
-      width: 50px;
+    .edge-input-row select {
+      width: 70px;
       padding: 4px;
     }
 
@@ -92,9 +92,13 @@
       <div class="form-row">
         <label>Aristas G1:</label>
         <div class="edge-input-row">
-          <input id="v1-from" type="text" placeholder="De" />
+          <select id="v1-from">
+            <option value="">De</option>
+          </select>
           <span>→</span>
-          <input id="v1-to" type="text" placeholder="A" />
+          <select id="v1-to">
+            <option value="">A</option>
+          </select>
           <button id="btnAddE1" class="btn" style="padding:4px 10px;">Agregar</button>
         </div>
         <div id="listE1" class="edge-list"></div>
@@ -108,9 +112,13 @@
       <div class="form-row">
         <label>Aristas G2:</label>
         <div class="edge-input-row">
-          <input id="v2-from" type="text" placeholder="De" />
+          <select id="v2-from">
+            <option value="">De</option>
+          </select>
           <span>→</span>
-          <input id="v2-to" type="text" placeholder="A" />
+          <select id="v2-to">
+            <option value="">A</option>
+          </select>
           <button id="btnAddE2" class="btn" style="padding:4px 10px;">Agregar</button>
         </div>
         <div id="listE2" class="edge-list"></div>
